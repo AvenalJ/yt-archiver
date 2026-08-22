@@ -852,7 +852,7 @@ func (s *Server) handleAddChannel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	catalog, err := engine.InspectChannelCatalog(r.Context(), req.URL, 50)
+	catalog, err := engine.InspectChannelCatalog(r.Context(), req.URL, 0)
 	if err != nil {
 		logger.Errorf("[API] Failed to inspect channel for subscription: %s | %v", req.URL, err)
 		w.Header().Set("Content-Type", "application/json")
@@ -898,7 +898,7 @@ func (s *Server) handleGetChannelCatalog(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	catalog, err := engine.InspectChannelCatalog(r.Context(), ch.URL, 100)
+	catalog, err := engine.InspectChannelCatalog(r.Context(), ch.URL, 0)
 	if err != nil {
 		logger.Errorf("[API] Failed to inspect channel catalog for %s: %v", ch.Title, err)
 		w.Header().Set("Content-Type", "application/json")

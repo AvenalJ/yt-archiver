@@ -416,7 +416,7 @@ func (qm *QueueManager) RefreshChannelMetadata(ctx context.Context, channelID st
 		return fmt.Errorf("channel not found")
 	}
 
-	catalog, err := engine.InspectChannelCatalog(ctx, ch.URL, 50)
+	catalog, err := engine.InspectChannelCatalog(ctx, ch.URL, 0)
 	if err != nil {
 		return err
 	}
@@ -1214,7 +1214,7 @@ func (qm *QueueManager) SyncChannel(ctx context.Context, channelID string) (int,
 		prefs = db.DefaultPreferences("./downloads")
 	}
 
-	catalog, err := engine.InspectChannelCatalog(ctx, ch.URL, 50)
+	catalog, err := engine.InspectChannelCatalog(ctx, ch.URL, 0)
 	if err != nil {
 		return 0, fmt.Errorf("failed to inspect channel catalog: %w", err)
 	}
@@ -1310,7 +1310,7 @@ func (qm *QueueManager) EnqueueChannelSelectedVideos(ctx context.Context, channe
 		prefs = db.DefaultPreferences("./downloads")
 	}
 
-	catalog, err := engine.InspectChannelCatalog(ctx, ch.URL, 100)
+	catalog, err := engine.InspectChannelCatalog(ctx, ch.URL, 0)
 	if err != nil {
 		return 0, fmt.Errorf("failed to inspect channel catalog: %w", err)
 	}
