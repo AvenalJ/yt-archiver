@@ -42,6 +42,7 @@ type InspectVideoItem struct {
 	Duration   int64  `json:"duration"`
 	Thumbnail  string `json:"thumbnail"`
 	Index      int    `json:"index"`
+	Category   string `json:"category,omitempty"`
 }
 
 type ChannelCatalogResult struct {
@@ -58,7 +59,7 @@ type ChannelCatalogResult struct {
 // isSingleVideoURL detects if a URL is a single video rather than a channel or playlist
 func isSingleVideoURL(rawURL string) bool {
 	u := strings.ToLower(rawURL)
-	if strings.Contains(u, "playlist?list=") || strings.Contains(u, "/@") || strings.Contains(u, "/channel/") || strings.Contains(u, "/c/") || strings.Contains(u, "/user/") || strings.Contains(u, "/videos") || strings.Contains(u, "/featured") || strings.Contains(u, "/playlists") {
+	if strings.Contains(u, "playlist?list=") || strings.Contains(u, "/@") || strings.Contains(u, "/channel/") || strings.Contains(u, "/c/") || strings.Contains(u, "/user/") || strings.Contains(u, "/videos") || strings.Contains(u, "/featured") || strings.Contains(u, "/playlists") || strings.Contains(u, "/shorts") {
 		return false
 	}
 	if strings.Contains(u, "watch?v=") || strings.Contains(u, "youtu.be/") || strings.Contains(u, "/shorts/") || strings.Contains(u, "/embed/") || strings.Contains(u, "/v/") {
@@ -345,22 +346,11 @@ parseInspectJSON:
 	return res, nil
 }
 
-// InspectChannelCatalog fetches the video catalog for a YouTube channel URL
-func InspectChannelCatalog(ctx context.Context, channelURL string, maxItems int) (*ChannelCatalogResult, error) {
-	channelURL = NormalizeYouTubeURL(channelURL)
+// fetchChannelTabEntries fetches video items from a specific channel tab (/videos or /shorts)
+func fetchChannelTabEntries(ctx context.Context, tabURL string, maxItems int, category string, channelTitle string, channelURL string) ([]InspectVideoItem, map[string]interface{}, error) {
 	cfg := config.GlobalConfig
 	if len(cfg.YtDlpCmd) == 0 {
-		err := fmt.Errorf("yt-dlp command not configured")
-		logger.Errorf("[ChannelCatalog] %v", err)
-		return nil, err
-	}
-
-	logger.Infof("[ChannelCatalog] Inspecting channel catalog for %s (maxItems: %d)", channelURL, maxItems)
-
-	// Ensure channel videos URL
-	inspectURL := strings.TrimRight(channelURL, "/")
-	if !strings.HasSuffix(inspectURL, "/videos") && (strings.Contains(inspectURL, "/@") || strings.Contains(inspectURL, "/channel/")) {
-		inspectURL += "/videos"
+		return nil, nil, fmt.Errorf("yt-dlp command not configured")
 	}
 
 	var cookieArgs []string
@@ -377,7 +367,7 @@ func InspectChannelCatalog(ctx context.Context, channelURL string, maxItems int)
 	if maxItems > 0 {
 		args = append(args, "--playlist-end", fmt.Sprintf("%d", maxItems))
 	}
-	args = append(args, inspectURL)
+	args = append(args, tabURL)
 
 	cmd := exec.CommandContext(ctx, args[0], args[1:]...)
 	sysutil.HideWindow(cmd)
@@ -387,12 +377,11 @@ func InspectChannelCatalog(ctx context.Context, channelURL string, maxItems int)
 
 	if err := cmd.Run(); err != nil {
 		if len(cookieArgs) > 0 {
-			logger.Warnf("[ChannelCatalog] Cookie extraction failed during channel inspect for %s, retrying without cookies...", inspectURL)
 			argsNoCookies := cfg.BuildYtDlpArgs("--dump-single-json", "--flat-playlist", "--no-warnings")
 			if maxItems > 0 {
 				argsNoCookies = append(argsNoCookies, "--playlist-end", fmt.Sprintf("%d", maxItems))
 			}
-			argsNoCookies = append(argsNoCookies, inspectURL)
+			argsNoCookies = append(argsNoCookies, tabURL)
 			cmdRetry := exec.CommandContext(ctx, argsNoCookies[0], argsNoCookies[1:]...)
 			sysutil.HideWindow(cmdRetry)
 			var stdout2, stderr2 bytes.Buffer
@@ -401,132 +390,187 @@ func InspectChannelCatalog(ctx context.Context, channelURL string, maxItems int)
 			if err2 := cmdRetry.Run(); err2 == nil {
 				stdout = stdout2
 				stderr = stderr2
-				goto parseCatalogJSON
+				goto parseEntries
 			}
 		}
-		logger.LogFailure("ChannelCatalog", "", "", channelURL, err, stderr.String())
-		return nil, fmt.Errorf("failed to inspect channel: %w (stderr: %s)", err, stderr.String())
+		return nil, nil, fmt.Errorf("failed to fetch tab %s: %w (stderr: %s)", tabURL, err, stderr.String())
 	}
 
-parseCatalogJSON:
+parseEntries:
 	var raw map[string]interface{}
 	if err := json.Unmarshal(stdout.Bytes(), &raw); err != nil {
-		logger.Errorf("[ChannelCatalog] Failed to parse payload for %s: %v", channelURL, err)
-		return nil, fmt.Errorf("failed to parse channel payload: %w", err)
+		return nil, nil, err
 	}
 
-	result := &ChannelCatalogResult{
-		URL: channelURL,
-	}
-	if cid, ok := raw["channel_id"].(string); ok {
-		result.ChannelID = cid
-	} else if cid, ok := raw["id"].(string); ok {
-		result.ChannelID = cid
-	}
-
-	if uploader, ok := raw["uploader"].(string); ok && uploader != "" {
-		result.Title = uploader
-	} else if ch, ok := raw["channel"].(string); ok && ch != "" {
-		result.Title = ch
-	} else if t, ok := raw["title"].(string); ok {
-		result.Title = strings.TrimSuffix(t, " - Videos")
-	}
-	if result.Title == "" {
-		result.Title = "Unknown Channel"
-	}
-
-	var avatarURL string
-	if thumbs, ok := raw["thumbnails"].([]interface{}); ok {
-		for _, t := range thumbs {
-			if tMap, ok := t.(map[string]interface{}); ok {
-				u, _ := tMap["url"].(string)
-				id, _ := tMap["id"].(string)
-				w, _ := tMap["width"].(float64)
-				h, _ := tMap["height"].(float64)
-				if id == "avatar_uncropped" || strings.Contains(id, "avatar") {
-					avatarURL = u
-					break
-				}
-				if w > 0 && h > 0 && w == h && u != "" {
-					avatarURL = u
-				}
-			}
+	var items []InspectVideoItem
+	entries, _ := raw["entries"].([]interface{})
+	for i, entry := range entries {
+		eMap, ok := entry.(map[string]interface{})
+		if !ok {
+			continue
 		}
-		if avatarURL == "" && len(thumbs) > 0 {
-			if lastThumb, ok := thumbs[len(thumbs)-1].(map[string]interface{}); ok {
-				avatarURL, _ = lastThumb["url"].(string)
-			}
-		}
-	}
-	if avatarURL == "" {
-		avatarURL, _ = raw["thumbnail"].(string)
-	}
-	result.AvatarURL = avatarURL
-
-	var rawHandle string
-	if uploaderID, ok := raw["uploader_id"].(string); ok && strings.HasPrefix(uploaderID, "@") {
-		rawHandle = uploaderID
-	} else if uploaderURL, ok := raw["uploader_url"].(string); ok && strings.Contains(uploaderURL, "/@") {
-		rawHandle = uploaderURL[strings.Index(uploaderURL, "/@")+1:]
-	} else if channelURLStr, ok := raw["channel_url"].(string); ok && strings.Contains(channelURLStr, "/@") {
-		rawHandle = channelURLStr[strings.Index(channelURLStr, "/@")+1:]
-	} else if strings.Contains(channelURL, "/@") {
-		rawHandle = channelURL[strings.Index(channelURL, "/@")+1:]
-	}
-	rawHandle = strings.TrimPrefix(rawHandle, "@")
-	rawHandle = strings.TrimPrefix(rawHandle, "/")
-	rawHandle = strings.TrimSuffix(rawHandle, "/videos")
-	rawHandle = strings.TrimSuffix(rawHandle, "/")
-	result.Handle = rawHandle
-
-	if subs, ok := raw["channel_follower_count"].(float64); ok {
-		result.SubscriberCount = int64(subs)
-	} else if subs, ok := raw["subscriber_count"].(float64); ok {
-		result.SubscriberCount = int64(subs)
-	}
-	if pc, ok := raw["playlist_count"].(float64); ok && pc > 0 {
-		result.TotalVideos = int(pc)
-	}
-
-	entries, ok := raw["entries"].([]interface{})
-	if ok {
-		result.TotalVideos = len(entries)
-		for i, entry := range entries {
-			eMap, ok := entry.(map[string]interface{})
-			if !ok {
-				continue
-			}
-			vID, _ := eMap["id"].(string)
-			vTitle, _ := eMap["title"].(string)
-			vURL, _ := eMap["url"].(string)
-			if vURL == "" && vID != "" {
+		vID, _ := eMap["id"].(string)
+		vTitle, _ := eMap["title"].(string)
+		vURL, _ := eMap["url"].(string)
+		if vURL == "" && vID != "" {
+			if category == "Shorts" {
+				vURL = "https://www.youtube.com/shorts/" + vID
+			} else {
 				vURL = "https://www.youtube.com/watch?v=" + vID
 			}
-			var vDuration int64
-			if durVal, ok := eMap["duration"].(float64); ok {
-				vDuration = int64(durVal)
+		}
+		var vDuration int64
+		if durVal, ok := eMap["duration"].(float64); ok {
+			vDuration = int64(durVal)
+		}
+		var vThumb string
+		if thumbs, ok := eMap["thumbnails"].([]interface{}); ok && len(thumbs) > 0 {
+			if lastThumb, ok := thumbs[len(thumbs)-1].(map[string]interface{}); ok {
+				vThumb, _ = lastThumb["url"].(string)
 			}
-			var vThumb string
-			if thumbs, ok := eMap["thumbnails"].([]interface{}); ok && len(thumbs) > 0 {
+		}
+		if vThumb == "" {
+			vThumb, _ = eMap["thumbnail"].(string)
+		}
+
+		itemCat := category
+		if itemCat == "" {
+			itemCat = "Videos"
+		}
+
+		items = append(items, InspectVideoItem{
+			ID:         vID,
+			URL:        vURL,
+			Title:      vTitle,
+			Channel:    channelTitle,
+			ChannelURL: channelURL,
+			Duration:   vDuration,
+			Thumbnail:  vThumb,
+			Index:      i + 1,
+			Category:   itemCat,
+		})
+	}
+
+	return items, raw, nil
+}
+
+// InspectChannelCatalog fetches the video catalog for a YouTube channel URL
+func InspectChannelCatalog(ctx context.Context, channelURL string, maxItems int) (*ChannelCatalogResult, error) {
+	channelURL = NormalizeYouTubeURL(channelURL)
+	cfg := config.GlobalConfig
+	if len(cfg.YtDlpCmd) == 0 {
+		err := fmt.Errorf("yt-dlp command not configured")
+		logger.Errorf("[ChannelCatalog] %v", err)
+		return nil, err
+	}
+
+	logger.Infof("[ChannelCatalog] Inspecting channel catalog for %s (maxItems: %d)", channelURL, maxItems)
+
+	// Clean base channel URL
+	baseURL := strings.TrimRight(channelURL, "/")
+	baseURL = strings.TrimSuffix(baseURL, "/videos")
+	baseURL = strings.TrimSuffix(baseURL, "/shorts")
+	baseURL = strings.TrimSuffix(baseURL, "/featured")
+	baseURL = strings.TrimSuffix(baseURL, "/streams")
+
+	// 1. Fetch authentic channel metadata directly for real TotalVideos and subscribers
+	meta := FetchChannelMetadata(ctx, baseURL, "", "")
+
+	result := &ChannelCatalogResult{
+		URL: baseURL,
+	}
+	if meta != nil {
+		result.ChannelID = meta.ChannelID
+		result.Title = meta.Title
+		result.Handle = strings.TrimPrefix(meta.Handle, "@")
+		result.AvatarURL = meta.AvatarURL
+		result.SubscriberCount = meta.SubscriberCount
+		result.TotalVideos = meta.TotalVideos
+	}
+
+	// 2. Fetch regular Videos tab
+	videosTabURL := baseURL + "/videos"
+	videoItems, rawVideos, errVideos := fetchChannelTabEntries(ctx, videosTabURL, maxItems, "Videos", result.Title, baseURL)
+
+	// If rawVideos has extra channel info and result is empty, fill from rawVideos
+	if rawVideos != nil {
+		if result.ChannelID == "" {
+			if cid, ok := rawVideos["channel_id"].(string); ok {
+				result.ChannelID = cid
+			} else if cid, ok := rawVideos["id"].(string); ok {
+				result.ChannelID = cid
+			}
+		}
+		if result.Title == "" || result.Title == "Unknown Channel" {
+			if uploader, ok := rawVideos["uploader"].(string); ok && uploader != "" {
+				result.Title = uploader
+			} else if ch, ok := rawVideos["channel"].(string); ok && ch != "" {
+				result.Title = ch
+			}
+		}
+		if result.AvatarURL == "" {
+			if thumbs, ok := rawVideos["thumbnails"].([]interface{}); ok && len(thumbs) > 0 {
 				if lastThumb, ok := thumbs[len(thumbs)-1].(map[string]interface{}); ok {
-					vThumb, _ = lastThumb["url"].(string)
+					result.AvatarURL, _ = lastThumb["url"].(string)
 				}
 			}
-			if vThumb == "" {
-				vThumb, _ = eMap["thumbnail"].(string)
-			}
-
-			result.Videos = append(result.Videos, InspectVideoItem{
-				ID:         vID,
-				URL:        vURL,
-				Title:      vTitle,
-				Channel:    result.Title,
-				ChannelURL: channelURL,
-				Duration:   vDuration,
-				Thumbnail:  vThumb,
-				Index:      i + 1,
-			})
 		}
+		if result.SubscriberCount == 0 {
+			if subs, ok := rawVideos["channel_follower_count"].(float64); ok {
+				result.SubscriberCount = int64(subs)
+			} else if subs, ok := rawVideos["subscriber_count"].(float64); ok {
+				result.SubscriberCount = int64(subs)
+			}
+		}
+	}
+
+	// 3. Fetch Shorts tab
+	shortsTabURL := baseURL + "/shorts"
+	shortsItems, _, _ := fetchChannelTabEntries(ctx, shortsTabURL, maxItems, "Shorts", result.Title, baseURL)
+
+	// 4. Merge Videos & Shorts deduplicated by ID
+	seenIDs := make(map[string]bool)
+	var allVideos []InspectVideoItem
+
+	for _, v := range videoItems {
+		if v.ID != "" && !seenIDs[v.ID] {
+			seenIDs[v.ID] = true
+			if result.Title != "" && v.Channel == "" {
+				v.Channel = result.Title
+			}
+			allVideos = append(allVideos, v)
+		}
+	}
+
+	for _, s := range shortsItems {
+		if s.ID != "" && !seenIDs[s.ID] {
+			seenIDs[s.ID] = true
+			s.Category = "Shorts"
+			if result.Title != "" && s.Channel == "" {
+				s.Channel = result.Title
+			}
+			allVideos = append(allVideos, s)
+		}
+	}
+
+	result.Videos = allVideos
+
+	// If metadata couldn't determine total videos, fallback to fetched total
+	if result.TotalVideos == 0 {
+		if pc, ok := rawVideos["playlist_count"].(float64); ok && pc > 0 {
+			result.TotalVideos = int(pc)
+		} else {
+			result.TotalVideos = len(allVideos)
+		}
+	}
+
+	if result.Title == "" {
+		result.Title = "YouTube Channel"
+	}
+
+	if errVideos != nil && len(allVideos) == 0 {
+		logger.LogFailure("ChannelCatalog", "", "", channelURL, errVideos, "")
+		return nil, errVideos
 	}
 
 	return result, nil

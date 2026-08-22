@@ -1142,6 +1142,18 @@
 						<span>Loading channel catalog...</span>
 					</div>
 				</div>
+
+				<!-- Studio Catalog Pagination Bar -->
+				<div class="pagination-bar" id="studio-pagination-bar" style="display: none; padding: 12px 16px; border-top: 1px solid var(--border-subtle);">
+					<div class="page-range" id="studio-page-range">Showing 1-24 of 0</div>
+					<div class="page-nav-buttons">
+						<button class="btn btn-xs btn-secondary" id="studio-btn-first" onclick="goToStudioPage(1)" title="First Page">« First</button>
+						<button class="btn btn-xs btn-secondary" id="studio-btn-prev" onclick="goToStudioPage(studioCurrentPage - 1)" title="Previous Page">‹ Prev</button>
+						<span class="page-indicator">Page <strong id="studio-current-page-num">1</strong> of <strong id="studio-total-pages-num">1</strong></span>
+						<button class="btn btn-xs btn-secondary" id="studio-btn-next" onclick="goToStudioPage(studioCurrentPage + 1)" title="Next Page">Next ›</button>
+						<button class="btn btn-xs btn-secondary" id="studio-btn-last" onclick="goToStudioPage(studioTotalPages)" title="Last Page">Last »</button>
+					</div>
+				</div>
 			</div>
 
 			<!-- TAB 2: Auto-Archive Rules -->
@@ -1149,66 +1161,69 @@
 				<div class="studio-rules-form">
 					<div class="pref-card">
 						<div class="pref-card-header">
-							<h4>Smart Auto-Archive Rules</h4>
-							<p>Configure automatic background monitoring and filtering rules for new uploads from this channel.</p>
-						</div>
-						<div class="pref-row">
-							<div class="pref-row-info">
-								<label for="rule-auto-download">Auto-Download New Uploads</label>
-								<span>Automatically detect and enqueue new video uploads during background sync cycles.</span>
+							<div class="pref-icon">
+								<svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
 							</div>
-							<label class="toggle-switch">
-								<input type="checkbox" id="rule-auto-download">
-								<span class="slider"></span>
+							<div>
+								<h3>Smart Auto-Archive Rules</h3>
+								<p>Configure automatic background monitoring and filtering rules for new uploads from this channel.</p>
+							</div>
+						</div>
+						<div class="pref-toggles-list">
+							<label class="toggle-row">
+								<div class="toggle-info">
+									<strong>Auto-Download New Uploads</strong>
+									<span>Automatically detect and enqueue new video uploads during background sync cycles.</span>
+								</div>
+								<span class="toggle-switch">
+									<input type="checkbox" id="rule-auto-download">
+									<span class="toggle-slider"></span>
+								</span>
 							</label>
-						</div>
-						<div class="pref-row">
-							<div class="pref-row-info">
-								<label for="rule-exclude-shorts">Exclude YouTube Shorts (≤ 60s)</label>
-								<span>Skip vertical short-form uploads and only archive regular long-form videos.</span>
-							</div>
-							<label class="toggle-switch">
-								<input type="checkbox" id="rule-exclude-shorts">
-								<span class="slider"></span>
+							<label class="toggle-row">
+								<div class="toggle-info">
+									<strong>Exclude YouTube Shorts (≤ 60s)</strong>
+									<span>Skip vertical short-form uploads and only archive regular long-form videos.</span>
+								</div>
+								<span class="toggle-switch">
+									<input type="checkbox" id="rule-exclude-shorts">
+									<span class="toggle-slider"></span>
+								</span>
 							</label>
-						</div>
-						<div class="pref-row">
-							<div class="pref-row-info">
-								<label for="rule-exclude-live">Exclude Live Streams</label>
-								<span>Skip live streams and stream recordings, focusing solely on standard video uploads.</span>
-							</div>
-							<label class="toggle-switch">
-								<input type="checkbox" id="rule-exclude-live">
-								<span class="slider"></span>
+							<label class="toggle-row">
+								<div class="toggle-info">
+									<strong>Exclude Live Streams</strong>
+									<span>Skip live streams and stream recordings, focusing solely on standard video uploads.</span>
+								</div>
+								<span class="toggle-switch">
+									<input type="checkbox" id="rule-exclude-live">
+									<span class="toggle-slider"></span>
+								</span>
 							</label>
-						</div>
-						<div class="pref-row">
-							<div class="pref-row-info">
-								<label for="rule-min-duration">Minimum Video Duration</label>
-								<span>Ignore very short clips shorter than this threshold.</span>
+							<div class="form-group" style="margin-top: 14px;">
+								<label>Minimum Video Duration</label>
+								<p class="form-help">Ignore very short clips shorter than this threshold.</p>
+								<select id="rule-min-duration">
+									<option value="0">No Minimum (Archive All)</option>
+									<option value="120">At least 2 minutes</option>
+									<option value="300">At least 5 minutes</option>
+									<option value="600">At least 10 minutes</option>
+									<option value="1200">At least 20 minutes</option>
+								</select>
 							</div>
-							<select id="rule-min-duration" class="form-select">
-								<option value="0">No Minimum (Archive All)</option>
-								<option value="120">At least 2 minutes</option>
-								<option value="300">At least 5 minutes</option>
-								<option value="600">At least 10 minutes</option>
-								<option value="1200">At least 20 minutes</option>
-							</select>
-						</div>
-						<div class="pref-row">
-							<div class="pref-row-info">
-								<label for="rule-max-auto-sync">Max Auto-Sync Batch Size</label>
-								<span>Maximum number of new videos to enqueue per auto-sync cycle.</span>
+							<div class="form-group" style="margin-top: 14px;">
+								<label>Max Auto-Sync Batch Size</label>
+								<p class="form-help">Maximum number of new videos to enqueue per auto-sync cycle.</p>
+								<select id="rule-max-auto-sync">
+									<option value="0">All Unarchived Uploads</option>
+									<option value="1">Latest 1 Video Only</option>
+									<option value="3">Latest 3 Videos</option>
+									<option value="5">Latest 5 Videos</option>
+									<option value="10">Latest 10 Videos</option>
+								</select>
 							</div>
-							<select id="rule-max-auto-sync" class="form-select">
-								<option value="0">All Unarchived Uploads</option>
-								<option value="1">Latest 1 Video Only</option>
-								<option value="3">Latest 3 Videos</option>
-								<option value="5">Latest 5 Videos</option>
-								<option value="10">Latest 10 Videos</option>
-							</select>
 						</div>
-						<div class="pref-actions" style="margin-top: 20px; display: flex; justify-content: flex-end;">
+						<div class="pref-actions" style="margin-top: 24px; display: flex; justify-content: flex-end;">
 							<button class="btn btn-primary" onclick="saveStudioRules()">
 								<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
 								<span>Save Channel Rules</span>

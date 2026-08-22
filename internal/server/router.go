@@ -935,11 +935,14 @@ func (s *Server) handleGetChannelCatalog(w http.ResponseWriter, r *http.Request)
 	archivedCount := 0
 
 	for _, v := range catalog.Videos {
-		cat := "Videos"
-		if strings.Contains(v.URL, "/shorts/") || (v.Duration > 0 && v.Duration <= 60) {
-			cat = "Shorts"
-		} else if strings.Contains(v.URL, "/live") {
-			cat = "Live Streams"
+		cat := v.Category
+		if cat == "" {
+			cat = "Videos"
+			if strings.Contains(v.URL, "/shorts/") || (v.Duration > 0 && v.Duration <= 60) {
+				cat = "Shorts"
+			} else if strings.Contains(v.URL, "/live") {
+				cat = "Live Streams"
+			}
 		}
 
 		isArch := false

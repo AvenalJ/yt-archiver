@@ -1554,6 +1554,9 @@ let currentStudioChannelData = null;
 let studioCategoryFilter = 'all';
 let studioStatusFilter = 'all';
 let studioSelectedVideos = new Set();
+let studioCurrentPage = 1;
+let studioPageSize = 24;
+let studioTotalPages = 1;
 
 async function openChannelStudio(channelId) {
 	currentStudioChannelId = channelId;
@@ -1561,6 +1564,7 @@ async function openChannelStudio(channelId) {
 	studioSelectedVideos.clear();
 	studioCategoryFilter = 'all';
 	studioStatusFilter = 'all';
+	studioCurrentPage = 1;
 
 	const modal = document.getElementById('channel-studio-modal');
 	if (!modal) return;
@@ -1595,6 +1599,7 @@ async function openChannelStudio(channelId) {
 
 		currentStudioChannelData = data.channel;
 		currentStudioCatalog = data.videos || [];
+		studioCurrentPage = 1;
 
 		// Render header profile
 		renderStudioHeader(data.channel, data.total_videos, data.archived_count);
@@ -1725,6 +1730,7 @@ function resetStudioFilterPills() {
 
 function setStudioCategoryFilter(category) {
 	studioCategoryFilter = category;
+	studioCurrentPage = 1;
 	document.querySelectorAll('#studio-category-filters .filter-pill').forEach(p => p.classList.remove('active'));
 	const pillMap = {
 		'all': 'cat-pill-all',
@@ -1739,6 +1745,7 @@ function setStudioCategoryFilter(category) {
 
 function setStudioStatusFilter(status) {
 	studioStatusFilter = status;
+	studioCurrentPage = 1;
 	document.querySelectorAll('#studio-status-filters .filter-pill').forEach(p => p.classList.remove('active'));
 	const pillMap = {
 		'all': 'stat-pill-all',
@@ -1751,7 +1758,17 @@ function setStudioStatusFilter(status) {
 }
 
 function filterStudioCatalog() {
+	studioCurrentPage = 1;
 	renderStudioCatalog();
+}
+
+function goToStudioPage(page) {
+	if (page < 1) page = 1;
+	if (page > studioTotalPages) page = studioTotalPages;
+	studioCurrentPage = page;
+	renderStudioCatalog();
+	const container = document.getElementById('studio-catalog-container');
+	if (container) container.scrollTop = 0;
 }
 
 function renderStudioCatalog() {
@@ -1777,18 +1794,53 @@ function renderStudioCatalog() {
 		return true;
 	});
 
+	const paginationBar = document.getElementById('studio-pagination-bar');
+
 	if (filtered.length === 0) {
 		container.innerHTML = `
 			<div class="studio-empty">
 				<p>No videos matching current filters</p>
 			</div>
 		`;
+		if (paginationBar) paginationBar.style.display = 'none';
 		updateStudioBatchBar([]);
 		return;
 	}
 
+	// Calculate pagination
+	studioTotalPages = Math.max(1, Math.ceil(filtered.length / studioPageSize));
+	if (studioCurrentPage > studioTotalPages) studioCurrentPage = studioTotalPages;
+	if (studioCurrentPage < 1) studioCurrentPage = 1;
+
+	const startIdx = (studioCurrentPage - 1) * studioPageSize;
+	const pageItems = filtered.slice(startIdx, startIdx + studioPageSize);
+
+	// Update pagination bar
+	if (paginationBar) {
+		if (filtered.length > studioPageSize) {
+			paginationBar.style.display = 'flex';
+			const rangeEl = document.getElementById('studio-page-range');
+			const curEl = document.getElementById('studio-current-page-num');
+			const totEl = document.getElementById('studio-total-pages-num');
+			const btnFirst = document.getElementById('studio-btn-first');
+			const btnPrev = document.getElementById('studio-btn-prev');
+			const btnNext = document.getElementById('studio-btn-next');
+			const btnLast = document.getElementById('studio-btn-last');
+
+			if (rangeEl) rangeEl.textContent = `Showing ${startIdx + 1}–${Math.min(startIdx + pageItems.length, filtered.length)} of ${filtered.length}`;
+			if (curEl) curEl.textContent = studioCurrentPage;
+			if (totEl) totEl.textContent = studioTotalPages;
+			if (btnFirst) btnFirst.disabled = (studioCurrentPage === 1);
+			if (btnPrev) btnPrev.disabled = (studioCurrentPage === 1);
+			if (btnNext) btnNext.disabled = (studioCurrentPage === studioTotalPages);
+			if (btnLast) btnLast.disabled = (studioCurrentPage === studioTotalPages);
+		} else {
+			paginationBar.style.display = 'none';
+		}
+	}
+
 	container.innerHTML = '';
-	filtered.forEach(v => {
+	pageItems.forEach(v => {
 		const row = document.createElement('div');
 		const isSelected = studioSelectedVideos.has(v.id);
 		row.className = `studio-video-row ${isSelected ? 'selected' : ''}`;
