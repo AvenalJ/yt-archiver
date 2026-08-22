@@ -86,14 +86,16 @@ func FetchChannelMetadata(ctx context.Context, channelURL string, channelTitle s
 		return meta
 	}
 
-	// Try reading existing channel.json if present
-	channelJSONPath := filepath.Join(outputDir, "channel.json")
-	if data, err := os.ReadFile(channelJSONPath); err == nil {
-		var existing ChannelMetadata
-		if json.Unmarshal(data, &existing) == nil && existing.Title != "" && existing.FormattedSubscribers != "" {
-			if _, err := os.Stat(filepath.Join(outputDir, existing.AvatarFilename)); err == nil {
-				if _, err := os.Stat(filepath.Join(outputDir, existing.BannerFilename)); err == nil {
-					return &existing
+	// Try reading existing channel.json if present in outputDir
+	if outputDir != "" {
+		channelJSONPath := filepath.Join(outputDir, "channel.json")
+		if data, err := os.ReadFile(channelJSONPath); err == nil {
+			var existing ChannelMetadata
+			if json.Unmarshal(data, &existing) == nil && existing.Title != "" && existing.FormattedSubscribers != "" {
+				if _, err := os.Stat(filepath.Join(outputDir, existing.AvatarFilename)); err == nil {
+					if _, err := os.Stat(filepath.Join(outputDir, existing.BannerFilename)); err == nil {
+						return &existing
+					}
 				}
 			}
 		}
@@ -157,38 +159,44 @@ func FetchChannelMetadata(ctx context.Context, channelURL string, channelTitle s
 		meta.SubscriberCount = parseSubCount(meta.FormattedSubscribers)
 	}
 
-	// Download Avatar Image
-	avatarDest := filepath.Join(outputDir, meta.AvatarFilename)
-	if meta.AvatarURL != "" {
-		downloadFile(ctx, meta.AvatarURL, avatarDest)
-	} else {
-		meta.AvatarURL = extractChannelAvatarURL(ctx, channelURL)
+	// If output directory is specified, download assets and save metadata files
+	if outputDir != "" {
+		_ = os.MkdirAll(outputDir, 0755)
+
+		// Download Avatar Image
+		avatarDest := filepath.Join(outputDir, meta.AvatarFilename)
 		if meta.AvatarURL != "" {
 			downloadFile(ctx, meta.AvatarURL, avatarDest)
+		} else {
+			meta.AvatarURL = extractChannelAvatarURL(ctx, channelURL)
+			if meta.AvatarURL != "" {
+				downloadFile(ctx, meta.AvatarURL, avatarDest)
+			}
 		}
-	}
 
-	// Download Banner Image
-	bannerDest := filepath.Join(outputDir, meta.BannerFilename)
-	if meta.BannerURL != "" {
-		downloadFile(ctx, meta.BannerURL, bannerDest)
-	}
-
-	// Save structured channel.json
-	if jsonBytes, err := json.MarshalIndent(meta, "", "  "); err == nil {
-		_ = os.WriteFile(channelJSONPath, jsonBytes, 0644)
-	}
-
-	if len(meta.Community) > 0 {
-		if commBytes, err := json.MarshalIndent(meta.Community, "", "  "); err == nil {
-			_ = os.WriteFile(filepath.Join(outputDir, "community.json"), commBytes, 0644)
-			_ = os.WriteFile(filepath.Join(outputDir, "posts.json"), commBytes, 0644)
+		// Download Banner Image
+		bannerDest := filepath.Join(outputDir, meta.BannerFilename)
+		if meta.BannerURL != "" {
+			downloadFile(ctx, meta.BannerURL, bannerDest)
 		}
-	}
 
-	if len(meta.Playlists) > 0 {
-		if playBytes, err := json.MarshalIndent(meta.Playlists, "", "  "); err == nil {
-			_ = os.WriteFile(filepath.Join(outputDir, "playlists.json"), playBytes, 0644)
+		// Save structured channel.json
+		channelJSONPath := filepath.Join(outputDir, "channel.json")
+		if jsonBytes, err := json.MarshalIndent(meta, "", "  "); err == nil {
+			_ = os.WriteFile(channelJSONPath, jsonBytes, 0644)
+		}
+
+		if len(meta.Community) > 0 {
+			if commBytes, err := json.MarshalIndent(meta.Community, "", "  "); err == nil {
+				_ = os.WriteFile(filepath.Join(outputDir, "community.json"), commBytes, 0644)
+				_ = os.WriteFile(filepath.Join(outputDir, "posts.json"), commBytes, 0644)
+			}
+		}
+
+		if len(meta.Playlists) > 0 {
+			if playBytes, err := json.MarshalIndent(meta.Playlists, "", "  "); err == nil {
+				_ = os.WriteFile(filepath.Join(outputDir, "playlists.json"), playBytes, 0644)
+			}
 		}
 	}
 
