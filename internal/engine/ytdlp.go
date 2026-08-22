@@ -528,7 +528,11 @@ func InspectChannelCatalog(ctx context.Context, channelURL string, maxItems int)
 	shortsTabURL := baseURL + "/shorts"
 	shortsItems, _, _ := fetchChannelTabEntries(ctx, shortsTabURL, maxItems, "Shorts", result.Title, baseURL)
 
-	// 4. Merge Videos & Shorts deduplicated by ID
+	// 4. Fetch Live Streams tab (/streams)
+	streamsTabURL := baseURL + "/streams"
+	streamsItems, _, _ := fetchChannelTabEntries(ctx, streamsTabURL, maxItems, "Live Streams", result.Title, baseURL)
+
+	// 5. Merge Videos, Shorts & Live Streams deduplicated by ID
 	seenIDs := make(map[string]bool)
 	var allVideos []InspectVideoItem
 
@@ -550,6 +554,17 @@ func InspectChannelCatalog(ctx context.Context, channelURL string, maxItems int)
 				s.Channel = result.Title
 			}
 			allVideos = append(allVideos, s)
+		}
+	}
+
+	for _, l := range streamsItems {
+		if l.ID != "" && !seenIDs[l.ID] {
+			seenIDs[l.ID] = true
+			l.Category = "Live Streams"
+			if result.Title != "" && l.Channel == "" {
+				l.Channel = result.Title
+			}
+			allVideos = append(allVideos, l)
 		}
 	}
 
