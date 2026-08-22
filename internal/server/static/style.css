@@ -2168,6 +2168,38 @@ body {
 	font-weight: 600;
 }
 
+.studio-quick-select-links {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-left: 6px;
+	padding-left: 12px;
+	border-left: 1px solid var(--border-subtle);
+}
+
+.btn-quick-link {
+	background: none;
+	border: none;
+	padding: 2px 4px;
+	font-size: 0.78rem;
+	font-weight: 600;
+	color: var(--accent-red);
+	cursor: pointer;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	transition: opacity 0.15s ease;
+	font-family: inherit;
+}
+
+.btn-quick-link:hover {
+	opacity: 0.8;
+}
+
+.quick-link-sep {
+	color: var(--text-muted);
+	font-size: 0.72rem;
+}
+
 .studio-batch-actions {
 	display: flex;
 	align-items: center;

@@ -1900,6 +1900,21 @@ function renderStudioCatalog() {
 	updateStudioBatchBar(filtered);
 }
 
+function getFilteredStudioCatalog() {
+	const searchInput = document.getElementById('studio-search-input');
+	const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+
+	return currentStudioCatalog.filter(v => {
+		if (query && !v.title.toLowerCase().includes(query)) return false;
+		if (studioCategoryFilter !== 'all') {
+			if (v.category !== studioCategoryFilter) return false;
+		}
+		if (studioStatusFilter === 'unarchived' && v.is_archived) return false;
+		if (studioStatusFilter === 'archived' && !v.is_archived) return false;
+		return true;
+	});
+}
+
 function toggleStudioVideoSelect(videoId, isChecked) {
 	if (isChecked) {
 		studioSelectedVideos.add(videoId);
@@ -1915,29 +1930,59 @@ function toggleStudioVideoSelect(videoId, isChecked) {
 }
 
 function toggleSelectAllStudioVideos(isChecked) {
-	const checkboxes = document.querySelectorAll('.studio-video-checkbox:not(:disabled)');
-	checkboxes.forEach(cb => {
-		const row = cb.closest('.studio-video-row');
-		if (row) {
-			const vId = row.id.replace('studio-video-row-', '');
-			cb.checked = isChecked;
-			if (isChecked) {
-				studioSelectedVideos.add(vId);
-				row.classList.add('selected');
-			} else {
-				studioSelectedVideos.delete(vId);
-				row.classList.remove('selected');
+	const filtered = getFilteredStudioCatalog();
+	if (isChecked) {
+		filtered.forEach(v => {
+			if (!v.is_archived && v.archived_status !== 'downloading') {
+				studioSelectedVideos.add(v.id);
 			}
-		}
-	});
-	updateStudioBatchBar();
+		});
+	} else {
+		studioSelectedVideos.clear();
+	}
+	renderStudioCatalog();
 }
 
-function updateStudioBatchBar(visibleList) {
+function selectAllChannelVideos(selectAll) {
+	const filtered = getFilteredStudioCatalog();
+	if (selectAll) {
+		filtered.forEach(v => {
+			if (!v.is_archived && v.archived_status !== 'downloading') {
+				studioSelectedVideos.add(v.id);
+			}
+		});
+	} else {
+		studioSelectedVideos.clear();
+	}
+	renderStudioCatalog();
+}
+
+function selectCurrentPageVideos() {
+	const filtered = getFilteredStudioCatalog();
+	const startIdx = (studioCurrentPage - 1) * studioPageSize;
+	const pageItems = filtered.slice(startIdx, startIdx + studioPageSize);
+	pageItems.forEach(v => {
+		if (!v.is_archived && v.archived_status !== 'downloading') {
+			studioSelectedVideos.add(v.id);
+		}
+	});
+	renderStudioCatalog();
+}
+
+function updateStudioBatchBar(filteredList) {
 	const countEl = document.getElementById('studio-selected-count');
 	const dlBtn = document.getElementById('studio-download-selected-btn');
 	const dlLabel = document.getElementById('studio-download-selected-label');
 	const selectAllCb = document.getElementById('studio-select-all');
+	const totalUnarchivedEl = document.getElementById('studio-total-unarchived-count');
+	const selectAllLabel = document.getElementById('studio-select-all-label');
+
+	const list = filteredList || getFilteredStudioCatalog();
+	const unarchived = list.filter(v => !v.is_archived && v.archived_status !== 'downloading');
+
+	if (totalUnarchivedEl) {
+		totalUnarchivedEl.textContent = unarchived.length;
+	}
 
 	const count = studioSelectedVideos.size;
 	if (countEl) countEl.textContent = `${count} selected`;
@@ -1947,9 +1992,31 @@ function updateStudioBatchBar(visibleList) {
 		dlBtn.disabled = (count === 0);
 	}
 
-	if (selectAllCb && visibleList && visibleList.length > 0) {
-		const unarchivedVisible = visibleList.filter(v => !v.is_archived);
-		selectAllCb.checked = (unarchivedVisible.length > 0 && unarchivedVisible.every(v => studioSelectedVideos.has(v.id)));
+	if (selectAllCb) {
+		if (unarchived.length === 0) {
+			selectAllCb.checked = false;
+			selectAllCb.indeterminate = false;
+		} else {
+			const selectedInFilter = unarchived.filter(v => studioSelectedVideos.has(v.id));
+			if (selectedInFilter.length === unarchived.length) {
+				selectAllCb.checked = true;
+				selectAllCb.indeterminate = false;
+			} else if (selectedInFilter.length > 0) {
+				selectAllCb.checked = false;
+				selectAllCb.indeterminate = true;
+			} else {
+				selectAllCb.checked = false;
+				selectAllCb.indeterminate = false;
+			}
+		}
+	}
+
+	if (selectAllLabel) {
+		if (count > 0 && unarchived.length > 0 && count >= unarchived.length) {
+			selectAllLabel.textContent = `All ${unarchived.length} Selected`;
+		} else {
+			selectAllLabel.textContent = 'Select All';
+		}
 	}
 }
 

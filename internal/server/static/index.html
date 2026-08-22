@@ -1122,9 +1122,16 @@
 					<div class="studio-batch-left">
 						<label class="studio-select-all-label">
 							<input type="checkbox" id="studio-select-all" onchange="toggleSelectAllStudioVideos(this.checked)">
-							<span>Select All Visible</span>
+							<span id="studio-select-all-label">Select All</span>
 						</label>
 						<span class="studio-selected-count" id="studio-selected-count">0 selected</span>
+						<div class="studio-quick-select-links" id="studio-quick-select-links">
+							<button type="button" class="btn-quick-link" onclick="selectAllChannelVideos(true)" title="Select all unarchived videos across all pages">All Videos (<span id="studio-total-unarchived-count">0</span>)</button>
+							<span class="quick-link-sep">•</span>
+							<button type="button" class="btn-quick-link" onclick="selectCurrentPageVideos()" title="Select only the videos on this page">This Page</button>
+							<span class="quick-link-sep">•</span>
+							<button type="button" class="btn-quick-link" onclick="selectAllChannelVideos(false)" title="Clear all selections">Clear</button>
+						</div>
 					</div>
 					<div class="studio-batch-actions">
 						<button class="btn btn-sm btn-secondary" onclick="syncLatestChannelVideos(5)">Download Latest 5</button>
