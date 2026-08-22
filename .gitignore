@@ -1,0 +1,81 @@
+# Binaries and compiled outputs
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.syso
+*.rsrc
+*.manifest.res
+main-res.syso
+rsrc_windows_*.syso
+/build/bin/
+yt-archiver.exe
+rebuild.exe
+
+# Database & runtime storage
+/data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# User media downloads & local archives
+/downloads/
+*.mp4
+*.mkv
+*.webm
+*.mp3
+*.m4a
+*.opus
+*.flac
+*.wav
+*.aac
+*.jpg
+*.jpeg
+*.png.thumb
+*.vtt
+*.srt
+*.nfo
+
+# User credentials, secrets & authentication
+cookies.txt
+*.cookies
+*.env
+*.env.local
+*.env.*.local
+
+# Logs and runtime traces
+/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS and Editor specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE & Tooling
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.bak
+*.tmp
+.agents/
+.gemini/
+
+# Node / Package managers (if any)
+node_modules/
+dist/

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "yt-archiver",
+  "outputfilename": "yt-archiver",
+  "frontend:dir": "internal/server/static",
+  "author": {
+    "name": "jak"
+  },
+  "info": {
+    "companyName": "YT Archiver",
+    "productName": "YT Archiver Studio",
+    "productVersion": "2.5.0",
+    "copyright": "Copyright 2026",
+    "comments": "High-Performance YouTube Archiving & Offline Studio"
+  }
+}

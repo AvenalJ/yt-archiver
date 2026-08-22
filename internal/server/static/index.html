@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>YT Archiver Studio - YouTube & Playlist Downloader</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+	<link rel="icon" type="image/png" href="app_icon.png">
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div class="app-layout">
+		<!-- Sidebar Navigation -->
+		<aside class="sidebar">
+			<div class="sidebar-header">
+				<div class="logo-group">
+					<div class="logo-mark" onclick="toggleSidebar()" role="button" title="YT Archiver Studio">
+						<svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+					</div>
+					<div class="logo-text">
+						<h1>YT Archiver</h1>
+						<span class="version-tag">PRO v2.5</span>
+					</div>
+				</div>
+				<button class="sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="toggleSidebar()" title="Collapse / Expand Sidebar (Ctrl+B)" aria-label="Toggle Sidebar">
+					<svg class="icon-collapse" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+					<svg class="icon-expand" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+				</button>
+			</div>
+
+			<nav class="nav-menu">
+				<button class="nav-item active" data-tab="download-tab" title="New Download">
+					<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+					<span>New Download</span>
+				</button>
+				<button class="nav-item" data-tab="queue-tab" title="Downloads & Queue">
+					<svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+					<span>Downloads & Queue</span>
+					<span class="badge" id="active-queue-count" style="display: none;">0</span>
+				</button>
+				<button class="nav-item" data-tab="channels-tab" title="Channels & Sync">
+					<svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12zm-5-6l-7 4V7l7 4z"/></svg>
+					<span>Channels & Sync</span>
+				</button>
+				<button class="nav-item" data-tab="library-tab" title="Library & Archives">
+					<svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>
+					<span>Library & Archives</span>
+				</button>
+				<button class="nav-item" data-tab="preferences-tab" title="Preferences">
+					<svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+					<span>Preferences</span>
+				</button>
+			</nav>
+		</aside>
+
+		<!-- Main Content Area -->
+		<main class="main-content">
+			<!-- Top Bar -->
+			<header class="top-bar">
+				<div class="top-bar-title">
+					<h2 id="current-view-title">New Download</h2>
+					<span id="current-view-desc">Extract videos, complete playlists, comments & metadata</span>
+				</div>
+				<div class="window-controls" id="window-controls">
+					<button class="win-btn win-min" onclick="windowMinimise()" aria-label="Minimize Window">
+						<svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>
+					</button>
+					<button class="win-btn win-max" onclick="windowToggleMaximise()" aria-label="Maximize Window">
+						<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+					</button>
+					<button class="win-btn win-close" onclick="windowClose()" aria-label="Close Window">
+						<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+					</button>
+				</div>
+			</header>
+
+			<!-- TAB 1: NEW DOWNLOAD -->
+			<section class="tab-pane active" id="download-tab">
+				<!-- Single vs Batch Toggle Bar -->
+				<div class="mode-switch-bar">
+					<button class="mode-btn active" id="mode-single-btn" onclick="setDownloadMode('single')">
+						<span>Single URL / Playlist</span>
+					</button>
+					<button class="mode-btn" id="mode-batch-btn" onclick="setDownloadMode('batch')">
+						<span>Batch URLs / Multi-Link</span>
+					</button>
+				</div>
+
+				<!-- Single URL Card -->
+				<div class="url-input-card" id="single-download-card">
+					<div class="url-input-wrapper">
+						<div class="input-icon">
+							<svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+						</div>
+						<input type="text" id="target-url-input" placeholder="Paste YouTube Video or Playlist URL (e.g. https://www.youtube.com/watch?v=...)" autocomplete="off">
+						<button class="btn btn-primary" id="inspect-btn" onclick="inspectUrl()">
+							<span class="btn-text">Inspect URL</span>
+							<span class="btn-loader" style="display: none;"></span>
+						</button>
+						<button class="btn btn-danger" id="inspect-cancel-btn" onclick="cancelInspectUrl()" style="display: none;">
+							Cancel
+						</button>
+					</div>
+
+					<!-- Quick Options Overrides -->
+					<div class="quick-options-row">
+						<div class="opt-chip">
+							<label>Download Type:</label>
+							<select id="quick-type-select" onchange="toggleQuickType(this.value)">
+								<option value="video">Full Video + Audio</option>
+								<option value="audio">Audio Only (MP3/FLAC/M4A)</option>
+							</select>
+						</div>
+						<div class="opt-chip" id="quick-quality-wrapper">
+							<label>Quality:</label>
+							<select id="quick-quality-select">
+								<option value="best">Best Available (Up to 4K)</option>
+								<option value="2160p">4K (2160p)</option>
+								<option value="1440p">2K (1440p)</option>
+								<option value="1080p" selected>Full HD (1080p)</option>
+								<option value="720p">HD (720p)</option>
+								<option value="480p">SD (480p)</option>
+							</select>
+						</div>
+						<div class="opt-chip" id="quick-audio-fmt-wrapper" style="display: none;">
+							<label>Audio Format:</label>
+							<select id="quick-audio-fmt-select">
+								<option value="mp3" selected>MP3 (320kbps)</option>
+								<option value="m4a">M4A (AAC)</option>
+								<option value="flac">FLAC (Lossless)</option>
+								<option value="wav">WAV</option>
+								<option value="opus">OPUS</option>
+							</select>
+						</div>
+						<div class="opt-chip">
+							<label>Profile:</label>
+							<select id="quick-profile-select" onchange="applyQuickProfile(this.value)"><option value="">Custom / Defaults</option></select>
+						</div>
+						<div class="opt-chip" id="quick-comments-wrapper">
+							<label>Comments:</label>
+							<select id="quick-comments-select" onchange="handleQuickCommentsChange(this.value)">
+								<option value="1000" selected>Top 1,000</option>
+								<option value="500">Top 500</option>
+								<option value="250">Top 250</option>
+								<option value="100">Top 100</option>
+								<option value="2500">Top 2,500</option>
+								<option value="5000">Top 5,000</option>
+								<option value="10000">Top 10,000</option>
+								<option value="25000">Top 25,000</option>
+								<option value="50000">Top 50,000</option>
+								<option value="-1">All Comments</option>
+								<option value="0">No Comments</option>
+								<option value="custom">Custom...</option>
+							</select>
+							<input type="number" id="quick-comments-custom" placeholder="e.g. 10000" min="1" max="1000000" style="display: none; width: 90px; padding: 3px 6px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-size: 0.8rem; margin-left: 4px;">
+						</div>
+						<div class="opt-toggle">
+							<label class="toggle-switch" for="quick-html-toggle">
+								<input type="checkbox" id="quick-html-toggle" checked>
+								<span class="toggle-slider"></span>
+							</label>
+							<label class="opt-toggle-label" for="quick-html-toggle">Generate YouTube HTML</label>
+						</div>
+					</div>
+				</div>
+
+				<!-- Batch URLs Card -->
+				<div class="url-input-card" id="batch-download-card" style="display: none;">
+					<div class="batch-header">
+						<h4>Paste Multiple URLs (One per line) or Upload Text File</h4>
+						<p>Enqueue dozens of videos or playlists at once with your preferred settings.</p>
+					</div>
+					<textarea id="batch-urls-textarea" rows="6" placeholder="https://www.youtube.com/watch?v=...\nhttps://www.youtube.com/watch?v=...\nhttps://www.youtube.com/playlist?list=..."></textarea>
+					<div class="batch-actions-row">
+						<div class="file-upload-btn-wrap">
+							<button class="btn btn-secondary" onclick="document.getElementById('batch-file-input').click()">
+								<svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+								<span>Upload .txt File</span>
+							</button>
+							<input type="file" id="batch-file-input" accept=".txt,.csv" style="display: none;" onchange="handleBatchFileUpload(event)">
+						</div>
+						<button class="btn btn-primary btn-lg" onclick="submitBatchDownload()">
+							<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+							<span>Enqueue All Items</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- Inspection Preview Card -->
+				<div class="preview-card" id="preview-card" style="display: none;">
+					<div class="preview-header">
+						<div class="preview-thumb-box">
+							<img id="preview-thumb" src="" alt="Thumbnail">
+							<span class="preview-duration-badge" id="preview-duration">0:00</span>
+							<span class="preview-type-badge" id="preview-type-badge">VIDEO</span>
+						</div>
+						<div class="preview-meta">
+							<h3 id="preview-title">Video Title</h3>
+							<div class="preview-channel" id="preview-channel">Channel Name</div>
+							<div class="preview-stats-row">
+								<span id="preview-item-count">1 Item</span>
+								<span class="bullet">&bull;</span>
+								<span id="preview-format-summary">MP4 / 1080p</span>
+							</div>
+
+							<div class="preview-actions">
+								<button class="btn btn-primary btn-lg" id="queue-all-btn" onclick="startDownload()">
+									<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+									<span id="queue-btn-label">Download Now</span>
+								</button>
+								<button class="btn btn-secondary" onclick="clearPreview()">Cancel</button>
+							</div>
+						</div>
+					</div>
+
+					<!-- Playlist Items Selection Table with Filtering & Pagination -->
+					<div class="playlist-items-box" id="playlist-items-box" style="display: none;">
+						<div class="playlist-table-header">
+							<div class="playlist-table-title">Playlist Videos (<span id="selected-items-count">0</span> / <span id="total-playlist-items">0</span> Selected)</div>
+							<div class="playlist-table-actions">
+								<button class="btn btn-xs btn-secondary" onclick="toggleSelectAllPlaylist(true)">Select All</button>
+								<button class="btn btn-xs btn-secondary" onclick="toggleSelectAllPlaylist(false)">Deselect All</button>
+								<button class="btn btn-xs btn-secondary" onclick="selectFirstNPlaylist(50)">First 50</button>
+								<button class="btn btn-xs btn-secondary" onclick="selectFirstNPlaylist(100)">First 100</button>
+								<button class="btn btn-xs btn-secondary" onclick="invertPlaylistSelection()">Invert</button>
+							</div>
+						</div>
+						<div class="playlist-filter-bar">
+							<div class="playlist-search-wrap">
+								<svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+								<input type="text" id="playlist-search-input" placeholder="Search playlist items by title..." oninput="handlePlaylistSearch(this.value)">
+							</div>
+							<div class="playlist-page-size-wrap">
+								<label>Per Page:</label>
+								<select id="playlist-page-size-select" onchange="changePlaylistPageSize(this.value)">
+									<option value="50" selected>50</option>
+									<option value="100">100</option>
+									<option value="250">250</option>
+								</select>
+							</div>
+						</div>
+						<div class="playlist-scroll-list" id="playlist-scroll-list"></div>
+						<div class="pagination-bar" id="playlist-pagination-bar">
+							<div class="page-range" id="playlist-page-range">Showing 1-50 of 0</div>
+							<div class="page-nav-buttons">
+								<button class="btn btn-xs btn-secondary" id="pl-btn-first" onclick="goToPlaylistPage(1)" title="First Page">« First</button>
+								<button class="btn btn-xs btn-secondary" id="pl-btn-prev" onclick="goToPlaylistPage(currentPlaylistPage - 1)" title="Previous Page">‹ Prev</button>
+								<span class="page-indicator">Page <strong id="pl-current-page-num">1</strong> of <strong id="pl-total-pages-num">1</strong></span>
+								<button class="btn btn-xs btn-secondary" id="pl-btn-next" onclick="goToPlaylistPage(currentPlaylistPage + 1)" title="Next Page">Next ›</button>
+								<button class="btn btn-xs btn-secondary" id="pl-btn-last" onclick="goToPlaylistPage(totalPlaylistPages)" title="Last Page">Last »</button>
+							</div>
+							<div class="page-jump-wrap">
+								<span>Go to:</span>
+								<input type="number" id="pl-jump-input" min="1" onkeydown="if(event.key==='Enter') jumpToPlaylistPage()">
+								<button class="btn btn-xs btn-secondary" onclick="jumpToPlaylistPage()">Go</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Features Highlights Grid -->
+				<div class="features-grid" id="features-grid">
+					<div class="feature-card" id="feature-card-offline">
+						<button type="button" class="feature-card-close-btn" onclick="dismissFeatureCard('feature-card-offline')" title="Dismiss this card" aria-label="Dismiss">
+							<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+						</button>
+						<div class="feature-icon red">
+							<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+						</div>
+						<h4>Offline YouTube Experience</h4>
+						<p>Interactive player with nested comments, timeline chapters, and SponsorBlock auto-skipping.</p>
+					</div>
+					<div class="feature-card" id="feature-card-sync">
+						<button type="button" class="feature-card-close-btn" onclick="dismissFeatureCard('feature-card-sync')" title="Dismiss this card" aria-label="Dismiss">
+							<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+						</button>
+						<div class="feature-icon blue">
+							<svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12zm-5-6l-7 4V7l7 4z"/></svg>
+						</div>
+						<h4>Channel Sync & Monitoring</h4>
+						<p>Track your favorite channels and incrementally archive new uploads with one click.</p>
+					</div>
+					<div class="feature-card" id="feature-card-queue">
+						<button type="button" class="feature-card-close-btn" onclick="dismissFeatureCard('feature-card-queue')" title="Dismiss this card" aria-label="Dismiss">
+							<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+						</button>
+						<div class="feature-icon green">
+							<svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+						</div>
+						<h4>Queue with Pause & Resume</h4>
+						<p>Download complete playlists with concurrent workers, 5-file clean directories, and auto-resume.</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- TAB 2: DOWNLOADS & QUEUE -->
+			<section class="tab-pane" id="queue-tab">
+				<div class="circuit-breaker-banner" id="circuit-breaker-banner" style="display: none;">
+					<div style="display: flex; align-items: center; gap: 12px;">
+						<svg viewBox="0 0 24 24" width="24" height="24" fill="#ffaa00" style="flex-shrink: 0;"><path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/></svg>
+						<div>
+							<strong style="color: #ffaa00; display: block;">Rate Limit Protection Active</strong>
+							<span id="circuit-breaker-message" style="font-size: 13px; opacity: 0.9;">Downloads paused temporarily to protect your connection from YouTube rate limits.</span>
+							<span id="circuit-breaker-timer" style="display: block; font-size: 12px; font-weight: bold; margin-top: 2px;"></span>
+						</div>
+					</div>
+					<button class="btn btn-sm btn-primary" onclick="resetCircuitBreaker()">Resume Now</button>
+				</div>
+
+				<div class="queue-toolbar">
+					<div class="queue-filter-tabs">
+						<button class="filter-pill active" onclick="filterQueue('all')">All</button>
+						<button class="filter-pill" onclick="filterQueue('downloading')">Downloading</button>
+						<button class="filter-pill" onclick="filterQueue('queued')">Queued</button>
+						<button class="filter-pill" onclick="filterQueue('completed')">Completed</button>
+						<button class="filter-pill" onclick="filterQueue('paused')">Paused</button>
+						<button class="filter-pill" onclick="filterQueue('failed')">Failed</button>
+					</div>
+					<div class="queue-global-actions">
+						<button class="btn btn-secondary" id="fetch-missing-btn" onclick="fetchMissingAssets()" title="Scan completed downloads and fetch missing comments, avatars, or metadata without re-downloading media" style="display: none;">
+							<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+							<span>Fetch Missing Assets</span>
+						</button>
+						<button class="btn btn-secondary" id="retry-failed-btn" onclick="retryAllFailedDownloads()" title="Retry all failed downloads" style="display: none;">
+							<svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8zm-1.5 6.5h-1v5h1v-5zm3 0h-1v5h1v-5z"/></svg>
+							<span>Retry All Failed</span>
+						</button>
+						<button class="btn btn-secondary" id="randomize-queue-btn" onclick="randomizeQueueOrder()" title="Randomize the order of queued downloads" style="display: none;">
+							<svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+							<span>Randomize Queue</span>
+						</button>
+						<button class="btn btn-secondary" id="revert-queue-btn" onclick="revertQueueOrder()" title="Revert queue back to original added order" style="display: none;">
+							<svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+							<span>Revert to Added Order</span>
+						</button>
+						<button class="btn btn-secondary" id="pause-all-btn" onclick="pauseAllDownloads()">
+							<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+							<span>Pause All</span>
+						</button>
+						<button class="btn btn-secondary" id="resume-all-btn" onclick="resumeAllDownloads()">
+							<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+							<span>Resume All</span>
+						</button>
+						<button class="btn btn-secondary" id="clear-queue-btn" onclick="clearQueue()" title="Cancel and clear all unfinished downloads from the queue">
+							<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+							<span>Clear Queue</span>
+						</button>
+						<button class="btn btn-secondary" id="refresh-queue-btn" onclick="fetchDownloads()">
+							<svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+							<span>Refresh</span>
+						</button>
+					</div>
+				</div>
+
+				<div class="queue-list" id="queue-cards-container">
+					<div class="empty-state">
+						<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+						<h3>No Downloads in Queue</h3>
+						<p>Paste a YouTube video or playlist URL in the New Download tab to begin.</p>
+					</div>
+				</div>
+				<div class="pagination-bar" id="queue-pagination-bar" style="display: none;">
+					<div class="page-range" id="queue-page-range">Showing 1-50 of 0</div>
+					<div class="page-nav-buttons">
+						<button class="btn btn-xs btn-secondary" id="q-btn-first" onclick="goToQueuePage(1)" title="First Page">« First</button>
+						<button class="btn btn-xs btn-secondary" id="q-btn-prev" onclick="goToQueuePage(currentQueuePage - 1)" title="Previous Page">‹ Prev</button>
+						<span class="page-indicator">Page <strong id="q-current-page-num">1</strong> of <strong id="q-total-pages-num">1</strong></span>
+						<button class="btn btn-xs btn-secondary" id="q-btn-next" onclick="goToQueuePage(currentQueuePage + 1)" title="Next Page">Next ›</button>
+						<button class="btn btn-xs btn-secondary" id="q-btn-last" onclick="goToQueuePage(totalQueuePages)" title="Last Page">Last »</button>
+					</div>
+				</div>
+			</section>
+
+			<!-- TAB 2.5: CHANNELS & SYNC -->
+			<section class="tab-pane" id="channels-tab">
+				<div class="channel-add-card">
+					<div class="channel-add-header">
+						<h3>Subscribe & Track Channels</h3>
+						<p>Add YouTube channels to monitor for new uploads and keep your offline archive synchronized.</p>
+					</div>
+					<div class="url-input-wrapper">
+						<div class="input-icon">
+							<svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12zm-5-6l-7 4V7l7 4z"/></svg>
+						</div>
+						<input type="text" id="add-channel-input" placeholder="Enter Channel URL or Handle (e.g. https://www.youtube.com/@Veritasium or @MKBHD)" autocomplete="off">
+						<button class="btn btn-primary" id="add-channel-btn" onclick="addChannel()">
+							<span class="btn-text">Add Channel</span>
+						</button>
+					</div>
+				</div>
+
+				<div class="channels-toolbar">
+					<div class="channels-count" id="channels-count-label">0 Subscribed Channels</div>
+					<button class="btn btn-secondary" onclick="fetchChannels()">
+						<svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+						<span>Refresh Channels</span>
+					</button>
+				</div>
+
+				<div class="channels-grid" id="channels-grid-container">
+					<div class="empty-state">
+						<svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12zm-5-6l-7 4V7l7 4z"/></svg>
+						<h3>No Channels Subscribed</h3>
+						<p>Add a channel above to track its catalog and download new releases automatically.</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- TAB 3: LIBRARY & ARCHIVES -->
+			<section class="tab-pane" id="library-tab">
+				<div class="library-toolbar">
+					<div class="library-search-box">
+						<svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+						<input type="text" id="library-search-input" placeholder="Search downloaded videos by title, channel, or video ID..." oninput="handleLibrarySearch(this.value)">
+					</div>
+					<div class="library-stats" id="library-stats-text">
+						0 Archive Items
+					</div>
+				</div>
+
+				<div class="library-grid" id="library-grid-container">
+					<div class="empty-state">
+						<svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>
+						<h3>No Completed Downloads Yet</h3>
+						<p>Your downloaded offline archives will appear here with full video players and metadata.</p>
+					</div>
+				</div>
+				<div class="pagination-bar" id="library-pagination-bar" style="display: none;">
+					<div class="page-range" id="library-page-range">Showing 1-24 of 0</div>
+					<div class="page-nav-buttons">
+						<button class="btn btn-xs btn-secondary" id="lib-btn-first" onclick="goToLibraryPage(1)" title="First Page">« First</button>
+						<button class="btn btn-xs btn-secondary" id="lib-btn-prev" onclick="goToLibraryPage(currentLibraryPage - 1)" title="Previous Page">‹ Prev</button>
+						<span class="page-indicator">Page <strong id="lib-current-page-num">1</strong> of <strong id="lib-total-pages-num">1</strong></span>
+						<button class="btn btn-xs btn-secondary" id="lib-btn-next" onclick="goToLibraryPage(currentLibraryPage + 1)" title="Next Page">Next ›</button>
+						<button class="btn btn-xs btn-secondary" id="lib-btn-last" onclick="goToLibraryPage(totalLibraryPages)" title="Last Page">Last »</button>
+					</div>
+				</div>
+			</section>
+
+			<!-- TAB 4: PREFERENCES -->
+			<section class="tab-pane" id="preferences-tab">
+				<div class="preferences-container">
+					<!-- Horizontal Tab Bar -->
+					<div class="pref-tabs-wrapper">
+						<div class="pref-subnav" id="pref-subnav">
+							<button type="button" class="pref-subnav-pill active" data-pref-target="overview" onclick="switchPrefCategory('overview')">
+								<svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+								<span>Overview</span>
+							</button>
+							<button type="button" class="pref-subnav-pill" data-pref-target="media" onclick="switchPrefCategory('media')">
+								<svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+								<span>Defaults</span>
+							</button>
+							<button type="button" class="pref-subnav-pill" data-pref-target="cookies" onclick="switchPrefCategory('cookies')">
+								<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10c0-.34-.02-.67-.06-1-.53.19-1.1.3-1.69.3-2.76 0-5-2.24-5-5 0-1.32.51-2.52 1.34-3.41C15.93 2.37 14.04 2 12 2zm-3.5 6c.83 0 1.5.67 1.5 1.5S9.33 11 8.5 11 7 10.33 7 9.5 7.67 8 8.5 8zm-1 7c-.83 0-1.5-.67-1.5-1.5S6.67 12 7.5 12s1.5.67 1.5 1.5S8.33 15 7.5 15zm5.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2-6c-.83 0-1.5-.67-1.5-1.5S14.17 8 15 8s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+								<span>Privacy</span>
+							</button>
+							<button type="button" class="pref-subnav-pill" data-pref-target="content" onclick="switchPrefCategory('content')">
+								<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+								<span>Media & Tags</span>
+							</button>
+							<button type="button" class="pref-subnav-pill" data-pref-target="comments" onclick="switchPrefCategory('comments')">
+								<svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+								<span>Comments</span>
+							</button>
+							<button type="button" class="pref-subnav-pill" data-pref-target="automation" onclick="switchPrefCategory('automation')">
+								<svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+								<span>Automation</span>
+							</button>
+							<button type="button" class="pref-subnav-pill" data-pref-target="storage" onclick="switchPrefCategory('storage')">
+								<svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/></svg>
+								<span>Storage & Engine</span>
+							</button>
+							<button type="button" class="pref-subnav-pill" data-pref-target="appearance" onclick="switchPrefCategory('appearance')">
+								<svg viewBox="0 0 24 24"><path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.2-.64-1.67-.08-.1-.13-.21-.13-.33 0-.28.22-.5.5-.5H16c3.31 0 6-2.69 6-6 0-4.96-4.49-9-10-9zm-5.5 11c-.83 0-1.5-.67-1.5-1.5S5.67 10 6.5 10s1.5.67 1.5 1.5S7.33 13 6.5 13zm3-4C8.67 9 8 8.33 8 7.5S8.67 6 9.5 6s1.5.67 1.5 1.5S10.33 9 9.5 9zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 6 14.5 6s1.5.67 1.5 1.5S15.33 9 14.5 9zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 10 17.5 10s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+								<span>Appearance</span>
+							</button>
+						</div>
+					</div>
+
+					<form id="preferences-form" onsubmit="savePreferences(event)">
+						<div class="pref-category-pane active" data-pref-category="overview">
+							<div class="preferences-hero"><div><span class="eyebrow">YT ARCHIVER CONTROL CENTER</span><h3>Set it once. Download with confidence.</h3><p>Your default profile, privacy, automation, storage, and download engine in one calm overview.</p></div><div class="hero-actions"><button type="button" class="btn btn-secondary" onclick="checkEngineAndOpen()">Check engine</button><button type="button" class="btn btn-primary" onclick="switchPrefCategory('media')">Tune downloads</button></div></div>
+							<div class="pref-overview-grid" id="pref-overview-grid"></div>
+						</div>
+						<!-- Category 1: Media & Formats -->
+						<div class="pref-category-pane" data-pref-category="media">
+							<!-- Section 1: Formats & Quality -->
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+									</div>
+									<div>
+										<h3>Format & Quality Defaults</h3>
+										<p>Set default resolution and audio codecs for single downloads and playlists.</p>
+									</div>
+								</div>
+								<div class="pref-grid">
+									<div class="form-group">
+										<label>Default Video Format</label>
+										<select id="pref-video-format">
+											<option value="mp4">MP4 (Best Compatibility)</option>
+											<option value="mkv">MKV (Matroska)</option>
+											<option value="webm">WebM (VP9/AV1)</option>
+											<option value="best">Best Format Available</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>Default Video Quality</label>
+										<select id="pref-video-quality">
+											<option value="best">Best Possible (Up to 4K/8K)</option>
+											<option value="2160p">4K (2160p)</option>
+											<option value="1440p">2K (1440p)</option>
+											<option value="1080p">Full HD (1080p)</option>
+											<option value="720p">HD (720p)</option>
+											<option value="480p">SD (480p)</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>Default Audio Format (When Audio-Only Selected)</label>
+										<select id="pref-audio-format">
+											<option value="mp3">MP3 (Universal)</option>
+											<option value="m4a">M4A (High Efficiency)</option>
+											<option value="flac">FLAC (Lossless)</option>
+											<option value="wav">WAV (Uncompressed)</option>
+											<option value="opus">OPUS (Highest Quality/Bit)</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>Default Audio Bitrate</label>
+										<select id="pref-audio-quality">
+											<option value="320k">320 kbps (High Fidelity)</option>
+											<option value="256k">256 kbps</option>
+											<option value="192k">192 kbps (Standard)</option>
+											<option value="128k">128 kbps</option>
+										</select>
+									</div>
+								</div>
+							</div>
+
+							<!-- Section: Dual-Track Companion Audio Archiving -->
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+									</div>
+									<div>
+										<h3>Dual-Track Companion Audio & NFO Export</h3>
+										<p>Automatically extract companion audio tracks alongside video files and generate media server metadata.</p>
+									</div>
+								</div>
+								<div class="pref-toggles-list">
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Extract Companion Audio Track Alongside Video</strong>
+											<span>Generates a standalone companion audio file in the folder with 1-click audio download in the offline player.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-extract-companion-audio" checked>
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+									<div class="form-group" style="margin-top: 8px;">
+										<label>Companion Audio Format</label>
+										<select id="pref-companion-audio-format">
+											<option value="mp3">MP3 (320 kbps - Universal)</option>
+											<option value="m4a">M4A / AAC (Apple & Mobile Native)</option>
+											<option value="opus">Opus (Bit-for-Bit Source Copy)</option>
+											<option value="flac">FLAC (Lossless Container)</option>
+										</select>
+									</div>
+									<label class="toggle-row" style="margin-top: 10px;">
+										<div class="toggle-info">
+											<strong>Generate Plex / Jellyfin / Kodi (.nfo) Metadata</strong>
+											<span>Writes standard movie.nfo and .nfo XML metadata files with plot, runtime, tags, and artwork for home media servers.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-generate-nfo" checked>
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+								</div>
+							</div>
+
+							<!-- Section 4: Media Tagging & Cover Art -->
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58s1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41s-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
+									</div>
+									<div>
+										<h3>Media Tagging & Embedded Artwork</h3>
+										<p>Embed rich ID3/MP4 metadata, chapter markers, and cover art directly inside media files.</p>
+									</div>
+								</div>
+								<div class="pref-toggles-list">
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Embed ID3 / MP4 Metadata Tags</strong>
+											<span>Writes Title, Artist (Channel), Album, Year, and Description into the media stream.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-embed-metadata">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Embed High-Res Thumbnail as Album Cover Art</strong>
+											<span>Sets album art inside .mp3/.mp4 files for VLC, Apple Music, Spotify, and Plex.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-embed-cover-art">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Embed Chapter Markers into MP4/MKV Container</strong>
+											<span>Enables native chapter navigation in media players like VLC and QuickTime.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-embed-chapters">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Embed Subtitles into Video Container</strong>
+											<span>Muxes soft subtitles into the .mp4/.mkv file.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-embed-subtitles">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<!-- Category 2: Browser & Cookies -->
+						<div class="pref-category-pane" data-pref-category="cookies">
+							<!-- Section 2: Cookies & Authentication -->
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10c0-.34-.02-.67-.06-1-.53.19-1.1.3-1.69.3-2.76 0-5-2.24-5-5 0-1.32.51-2.52 1.34-3.41C15.93 2.37 14.04 2 12 2zm-3.5 6c.83 0 1.5.67 1.5 1.5S9.33 11 8.5 11 7 10.33 7 9.5 7.67 8 8.5 8zm-1 7c-.83 0-1.5-.67-1.5-1.5S6.67 12 7.5 12s1.5.67 1.5 1.5S8.33 15 7.5 15zm5.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2-6c-.83 0-1.5-.67-1.5-1.5S14.17 8 15 8s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+									</div>
+									<div>
+										<h3>Browser Cookies & Authentication</h3>
+										<p>Unlock age-restricted, private, and member-only videos using your browser profile session.</p>
+									</div>
+								</div>
+								<div class="privacy-notice"><strong>Keep your account private.</strong><span>Cookies can access your signed-in YouTube session. They stay on this device, are excluded from backups, and can be removed here at any time.</span></div>
+								<div class="pref-grid">
+									<div class="form-group">
+										<label>1-Click Browser Profile (Optional)</label>
+										<select id="pref-cookie-browser" onchange="onBrowserCookieChange(this.value)">
+											<option value="none">Disabled (No Browser Cookies)</option>
+											<option value="vivaldi">Vivaldi</option>
+											<option value="chrome">Google Chrome</option>
+											<option value="brave">Brave Browser</option>
+											<option value="edge">Microsoft Edge</option>
+											<option value="firefox">Mozilla Firefox</option>
+											<option value="opera">Opera / Opera GX</option>
+											<option value="chromium">Chromium</option>
+										</select>
+										<span class="help-text">Reads login session from installed browser. (Requires browser to be closed on Windows).</span>
+									</div>
+									<div class="form-group">
+										<label>Or Upload cookies.txt File (Recommended)</label>
+										<div style="display: flex; gap: 8px; align-items: center;">
+											<div class="file-upload-box" style="flex: 1;" onclick="document.getElementById('cookie-file-picker').click()">
+												<span>Click to upload cookies.txt</span>
+												<input type="file" id="cookie-file-picker" accept=".txt" style="display: none;" onchange="uploadCookieFile(event)">
+											</div>
+											<button type="button" class="btn btn-sm btn-secondary" id="cookie-file-delete-btn" onclick="deleteCookieFile()" style="display: none;" title="Remove uploaded cookies.txt">Remove</button>
+										</div>
+										<span class="help-text" id="cookie-file-status">No custom cookies.txt loaded</span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Category 3: Content & Subtitles -->
+						<div class="pref-category-pane" data-pref-category="content">
+							<!-- Section 5: Metadata & Subtitles -->
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+									</div>
+									<div>
+										<h3>Metadata & Subtitles Assets</h3>
+										<p>Select what data assets to extract alongside the media stream.</p>
+									</div>
+								</div>
+								<div class="pref-toggles-list">
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Download High-Resolution Thumbnail (.jpg)</strong>
+											<span>Saves the maximum resolution thumbnail file for offline viewing.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-download-thumbnail">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Download Metadata JSON (.info.json)</strong>
+											<span>Saves raw video metadata including tags, upload dates, views, and categories.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-download-metadata">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Download Subtitles / Closed Captions (.vtt/.srt)</strong>
+											<span>Extracts creator and auto-generated subtitle tracks for offline playback.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-download-subtitles">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Fetch Video Dislikes (Return YouTube Dislike API)</strong>
+											<span>Queries the public RYD database to restore accurate dislike counts & ratings in offline players and metadata.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-fetch-dislikes">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+									<div class="form-group" style="padding-top: 10px;">
+										<label>Subtitle Languages (comma-separated or 'auto')</label>
+										<input type="text" id="pref-subtitle-langs" placeholder="e.g. en.*,en,auto,es,fr">
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Category 4: Comments & Avatars -->
+						<div class="pref-category-pane" data-pref-category="comments">
+							<!-- Section 6: Comments & Avatars -->
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+									</div>
+									<div>
+										<h3>Comments & Commenter Avatars</h3>
+										<p>Configure complete comment preservation and author avatar downloads.</p>
+									</div>
+								</div>
+								<div class="pref-toggles-list">
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Download Comments & Replies</strong>
+											<span>Extracts the full discussion tree including likes, timestamps, and nested replies.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-download-comments">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+									<div class="form-group">
+										<label>Comment Limit Per Video</label>
+										<select id="pref-comment-limit" onchange="handlePrefCommentLimitChange(this.value)">
+											<option value="100">Top 100 Comments</option>
+											<option value="250">Top 250 Comments</option>
+											<option value="500">Top 500 Comments</option>
+											<option value="1000">Top 1,000 Comments (Recommended)</option>
+											<option value="2500">Top 2,500 Comments</option>
+											<option value="5000">Top 5,000 Comments</option>
+											<option value="10000">Top 10,000 Comments</option>
+											<option value="25000">Top 25,000 Comments</option>
+											<option value="50000">Top 50,000 Comments</option>
+											<option value="-1">All Comments (Complete Archive)</option>
+											<option value="custom">Custom Limit...</option>
+										</select>
+										<input type="number" id="pref-comment-limit-custom" placeholder="Enter custom comment limit (e.g. 10000)" min="1" max="1000000" style="display: none; margin-top: 8px;">
+									</div>
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Download Commenter Avatars (Bundled into avatars.zip)</strong>
+											<span>Saves profile pictures into a single avatars.zip archive with embedded Base64 in HTML.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-download-avatars">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<!-- Category 5: SponsorBlock & Retry Automation -->
+						<div class="pref-category-pane" data-pref-category="automation">
+							<!-- Section 3: SponsorBlock -->
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+									</div>
+									<div>
+										<h3>SponsorBlock (Offline Player & Video Trimming)</h3>
+										<p>Skip sponsors, intro sequences, self-promotion, and outro credits automatically.</p>
+									</div>
+								</div>
+								<div class="pref-grid">
+									<div class="form-group">
+										<label>SponsorBlock Action</label>
+										<select id="pref-sponsorblock-action">
+											<option value="mark">Mark in Offline Player (Timeline Segments & Auto-skip)</option>
+											<option value="remove">Cut Segments with FFmpeg (Removes sponsors from video file)</option>
+											<option value="none">Disabled</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>Categories to Skip / Mark</label>
+										<input type="text" id="pref-sponsorblock-categories" placeholder="sponsor,selfpromo,intro,outro,interaction">
+										<span class="help-text">Comma-separated: sponsor, selfpromo, intro, outro, interaction, preview</span>
+									</div>
+								</div>
+							</div>
+
+							<!-- Section 8: Auto-Retry Failed Downloads -->
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+									</div>
+									<div>
+										<h3>Auto-Retry Failed Downloads</h3>
+										<p>Automatically re-queue and resume failed downloads periodically in the background.</p>
+									</div>
+								</div>
+								<div class="pref-toggles-list">
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Enable Automatic Retry for Failed Downloads</strong>
+											<span>When enabled, background scheduler will re-attempt failed downloads on your chosen schedule.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-auto-retry-failed">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+								<div class="pref-grid" style="padding-top: 10px;">
+										<div class="form-group">
+											<label>Retry Check Interval</label>
+											<select id="pref-auto-retry-interval">
+												<option value="5">Every 5 Minutes</option>
+												<option value="10">Every 10 Minutes</option>
+												<option value="15" selected>Every 15 Minutes (Recommended)</option>
+												<option value="30">Every 30 Minutes</option>
+												<option value="60">Every 1 Hour</option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Maximum Retry Attempts</label>
+											<select id="pref-auto-retry-max-attempts">
+												<option value="1">1 Attempt</option>
+												<option value="3" selected>3 Attempts (Recommended)</option>
+												<option value="5">5 Attempts</option>
+												<option value="10">10 Attempts</option>
+											</select>
+										</div>
+									</div>
+									<label class="toggle-row" style="margin-top: 12px;">
+										<div class="toggle-info">
+											<strong>Rate-Limit Protection Circuit Breaker (Anti-Ban)</strong>
+											<span>If YouTube triggers repeated HTTP 429 rate limits or bot challenges, temporarily pauses queue for 10 minutes to protect your connection.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-circuit-breaker-enabled">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+								</div>
+								<div class="pref-grid" style="padding-top: 10px;">
+									<div class="form-group"><label>Channel Sync Frequency</label><select id="pref-sync-interval"><option value="15">Every 15 minutes</option><option value="60">Hourly</option><option value="1440">Daily</option></select></div>
+									<label class="toggle-row"><div class="toggle-info"><strong>Automatically sync subscribed channels</strong><span>Checks channels with Auto-download enabled.</span></div><span class="toggle-switch"><input type="checkbox" id="pref-auto-sync"><span class="toggle-slider"></span></span></label>
+									<label class="toggle-row"><div class="toggle-info"><strong>Only sync during a window</strong><span>Uses this computer's local time.</span></div><span class="toggle-switch"><input type="checkbox" id="pref-sync-window-enabled"><span class="toggle-slider"></span></span></label>
+									<div class="form-group"><label>Sync Window</label><div style="display:flex;gap:8px"><input type="time" id="pref-sync-window-start"><input type="time" id="pref-sync-window-end"></div></div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Category 6: Storage & Interface -->
+						<div class="pref-category-pane" data-pref-category="storage">
+							<!-- Section 7: Offline HTML Report & Storage -->
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/></svg>
+									</div>
+									<div>
+										<h3>Storage & Offline HTML Viewer</h3>
+										<p>Configure folder paths, duplicate handling, and YouTube-clone HTML generation.</p>
+									</div>
+								</div>
+								<div class="pref-toggles-list">
+									<label class="toggle-row">
+										<div class="toggle-info">
+											<strong>Generate Interactive Offline YouTube-Clone HTML Viewer (index.html)</strong>
+											<span>Creates a standalone offline web player with description, timeline chapters, and comments.</span>
+										</div>
+										<span class="toggle-switch">
+											<input type="checkbox" id="pref-generate-html">
+											<span class="toggle-slider"></span>
+										</span>
+									</label>
+									<div class="form-group">
+										<label>Downloads Folder Path</label>
+										<input type="text" id="pref-download-folder" placeholder="e.g. C:\Users\jak\Desktop\New folder (4)\downloads">
+									</div>
+									<div class="form-group">
+										<label>Duplicate Handling Policy</label>
+										<select id="pref-duplicate-action">
+											<option value="skip">Skip Duplicate (Save Bandwidth & Disk)</option>
+											<option value="overwrite">Overwrite Existing File</option>
+											<option value="rename">Download with New Name</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>Max Concurrent Downloads</label>
+										<select id="pref-max-concurrent">
+											<option value="1">1 (Sequential Download)</option>
+											<option value="2">2 (Recommended)</option>
+											<option value="3">3 (Fast Broadband)</option>
+											<option value="5">5 (High Speed)</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>Download Speed Limit (Optional, e.g. 5M or empty for unlimited)</label>
+										<input type="text" id="pref-speed-limit" placeholder="e.g. 10M, 500K, or leave blank for full speed">
+									</div>
+									<label class="toggle-row"><div class="toggle-info"><strong>Run downloads only during an overnight window</strong><span>Active downloads finish; new queue items wait outside the window.</span></div><span class="toggle-switch"><input type="checkbox" id="pref-download-window-enabled"><span class="toggle-slider"></span></span></label>
+									<div class="form-group"><label>Download Window (local time)</label><div style="display:flex;gap:8px"><input type="time" id="pref-download-window-start"><input type="time" id="pref-download-window-end"></div></div>
+								</div>
+							</div>
+
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+									</div>
+									<div>
+										<h3>Engine Health & Updates</h3>
+										<p>Check yt-dlp, FFmpeg, and JS challenge solver before troubleshooting a failed download.</p>
+									</div>
+								</div>
+								<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn btn-secondary" onclick="checkEngineHealth()">Run Health Check</button><button type="button" class="btn btn-secondary" onclick="updateYtDlp()">Update yt-dlp</button><span class="help-text" id="engine-health-status">Not checked yet</span></div>
+							</div>
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+									</div>
+									<div>
+										<h3>Live Session Logs & Diagnostics</h3>
+										<p>Real-time session logging with failure reasons, command output, and 10-session automatic retention.</p>
+									</div>
+								</div>
+								<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+									<button type="button" class="btn btn-secondary" onclick="viewLiveLog()">View Current Session Log</button>
+									<button type="button" class="btn btn-secondary" onclick="openLogsFolder()">Open Logs Directory</button>
+									<span class="help-text" id="log-file-status">Logs saved in <code>data/logs</code> (retains 10 latest sessions)</span>
+								</div>
+							</div>
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+									</div>
+									<div>
+										<h3>Profiles & Backup</h3>
+										<p>Use reusable formats for new downloads, or move your library safely between installations.</p>
+									</div>
+								</div>
+								<div class="pref-grid"><div class="form-group"><label>Quick profiles</label><div style="display:flex;gap:8px"><button type="button" class="btn btn-secondary" onclick="saveCurrentAsProfile()">Save current settings as profile</button><button type="button" class="btn btn-secondary" onclick="manageProfiles()">Manage profiles</button></div></div><div class="form-group"><label>Backup & Reset</label><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-secondary" href="/api/data/export">Export backup</a><button type="button" class="btn btn-secondary" onclick="document.getElementById('import-backup').click()">Import backup</button><input type="file" id="import-backup" accept="application/json,.json" style="display:none" onchange="importBackup(event)"><button type="button" class="btn btn-secondary" onclick="resetPreferencesToDefault()">Reset to defaults</button></div></div></div>
+							</div>
+
+						</div>
+
+						<!-- Category 7: Look & Feel -->
+						<div class="pref-category-pane" data-pref-category="appearance">
+							<div class="pref-card appearance-intro"><div><span class="eyebrow">PERSONALIZE YT ARCHIVER</span><h3>Make the studio yours.</h3><p>Choose a foundation theme, an accent color, and the information density that feels best to you. Changes preview instantly and are remembered after restart.</p></div></div>
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.2-.64-1.67-.08-.1-.13-.21-.13-.33 0-.28.22-.5.5-.5H16c3.31 0 6-2.69 6-6 0-4.96-4.49-9-10-9zm-5.5 11c-.83 0-1.5-.67-1.5-1.5S5.67 10 6.5 10s1.5.67 1.5 1.5S7.33 13 6.5 13zm3-4C8.67 9 8 8.33 8 7.5S8.67 6 9.5 6s1.5.67 1.5 1.5S10.33 9 9.5 9zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 6 14.5 6s1.5.67 1.5 1.5S15.33 9 14.5 9zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 10 17.5 10s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+									</div>
+									<div>
+										<h3>Theme</h3>
+										<p>Pick a complete visual direction for the workspace.</p>
+									</div>
+								</div>
+								<div class="theme-picker" id="theme-picker">
+									<button type="button" class="theme-choice" data-theme-choice="midnight" onclick="setTheme('midnight')"><span class="theme-swatch swatch-midnight"></span><strong>Midnight Studio</strong><small>Focused, familiar dark workspace</small></button>
+									<button type="button" class="theme-choice" data-theme-choice="liquid-glass" onclick="setTheme('liquid-glass')"><span class="theme-swatch swatch-glass"></span><strong>Glass</strong><small>Translucent panels, soft light and depth</small></button>
+									<button type="button" class="theme-choice" data-theme-choice="aurora" onclick="setTheme('aurora')"><span class="theme-swatch swatch-aurora"></span><strong>Aurora</strong><small>Deep space with vivid color atmosphere</small></button>
+									<button type="button" class="theme-choice" data-theme-choice="paper" onclick="setTheme('paper')"><span class="theme-swatch swatch-paper"></span><strong>Paper</strong><small>Bright editorial workspace with ink contrast</small></button>
+								</div>
+								<input type="hidden" id="pref-theme" value="midnight">
+							</div>
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M17.66 8L12 2.35 6.34 8C4.78 9.56 4 11.64 4 13.64s.78 4.11 2.34 5.67 3.67 2.35 5.66 2.35 4.1-.79 5.66-2.35S20 15.64 20 13.64 19.22 9.56 17.66 8zM6 14c.01-2 .62-3.27 1.76-4.4L12 5.27l4.24 4.38C17.38 10.77 17.99 12 18 14H6z"/></svg>
+									</div>
+									<div>
+										<h3>Color scheme</h3>
+										<p>Use a color that fits your workspace without changing layout.</p>
+									</div>
+								</div>
+								<div class="accent-picker" id="accent-picker"><button type="button" class="accent-choice crimson" data-accent-choice="crimson" onclick="setColorScheme('crimson')">Crimson</button><button type="button" class="accent-choice ocean" data-accent-choice="ocean" onclick="setColorScheme('ocean')">Ocean</button><button type="button" class="accent-choice violet" data-accent-choice="violet" onclick="setColorScheme('violet')">Violet</button><button type="button" class="accent-choice lime" data-accent-choice="lime" onclick="setColorScheme('lime')">Lime</button><button type="button" class="accent-choice sunset" data-accent-choice="sunset" onclick="setColorScheme('sunset')">Sunset</button><button type="button" class="accent-choice rose" data-accent-choice="rose" onclick="setColorScheme('rose')">Rose</button><button type="button" class="accent-choice teal" data-accent-choice="teal" onclick="setColorScheme('teal')">Teal</button><button type="button" class="accent-choice indigo" data-accent-choice="indigo" onclick="setColorScheme('indigo')">Indigo</button><button type="button" class="accent-choice amber" data-accent-choice="amber" onclick="setColorScheme('amber')">Amber</button><button type="button" class="accent-choice slate" data-accent-choice="slate" onclick="setColorScheme('slate')">Slate</button></div><input type="hidden" id="pref-color-scheme" value="crimson">
+							</div>
+							<div class="pref-card">
+								<div class="pref-card-header">
+									<div class="pref-icon">
+										<svg viewBox="0 0 24 24"><path d="M4 11h5V5H4v6zm0 7h5v-6H4v6zm6 0h5v-6h-5v6zm6 0h5v-6h-5v6zm-6-7h5V5h-5v6zm6-6v6h5V5h-5z"/></svg>
+									</div>
+									<div>
+										<h3>Interface density</h3>
+										<p>Choose between a comfortable rhythm and a high-information workspace.</p>
+									</div>
+								</div>
+								<div class="pref-grid"><div class="form-group"><label>Density mode</label><select id="pref-ui-mode" onchange="applyUIMode(this.value)"><option value="standard">Standard — comfortable spacing</option><option value="compact">Compact — condensed cards and toolbars</option></select><span class="help-text">Your selection applies everywhere, immediately.</span></div></div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</section>
+		</main>
+	</div>
+
+	<!-- Universal Theme-Aware Custom Modal / Dialog Backdrop -->
+	<div id="custom-dialog-backdrop" class="custom-dialog-backdrop" style="display: none;" onclick="handleDialogBackdropClick(event)">
+		<div class="custom-dialog-card" id="custom-dialog-card" role="dialog" aria-modal="true">
+			<div class="custom-dialog-header">
+				<div class="custom-dialog-icon" id="custom-dialog-icon"></div>
+				<div class="custom-dialog-titles">
+					<h3 id="custom-dialog-title"></h3>
+					<p id="custom-dialog-message"></p>
+				</div>
+				<button type="button" class="custom-dialog-close" onclick="closeCustomDialog(null)" title="Close" aria-label="Close">
+					<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+				</button>
+			</div>
+			<div class="custom-dialog-body" id="custom-dialog-body"></div>
+			<div class="custom-dialog-actions" id="custom-dialog-actions"></div>
+		</div>
+	</div>
+
+	<!-- Dedicated Channel Studio Modal -->
+	<div id="channel-studio-modal" class="studio-modal-backdrop" style="display: none;" onclick="handleStudioBackdropClick(event)">
+		<div class="studio-modal-card" id="studio-modal-card" role="dialog" aria-modal="true">
+			<!-- Header / Channel Profile -->
+			<div class="studio-header">
+				<div class="studio-channel-profile">
+					<div class="studio-avatar-box" id="studio-avatar-box"></div>
+					<div class="studio-profile-info">
+						<div class="studio-title-row">
+							<h2 id="studio-channel-title">Channel Name</h2>
+							<span class="studio-badge" id="studio-channel-handle">@handle</span>
+						</div>
+						<div class="studio-meta-row" id="studio-channel-meta">
+							<!-- Subscribers, total videos, archived count -->
+						</div>
+					</div>
+				</div>
+				<button type="button" class="custom-dialog-close" onclick="closeChannelStudio()" title="Close Studio" aria-label="Close">
+					<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+				</button>
+			</div>
+
+			<!-- Studio Sub-Navigation Tabs: Catalog & Rules -->
+			<div class="studio-nav-bar">
+				<button class="studio-tab-btn active" id="btn-studio-tab-catalog" data-studio-tab="catalog" onclick="switchStudioTab('catalog')">
+					<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+					<span>Video Catalog</span>
+				</button>
+				<button class="studio-tab-btn" id="btn-studio-tab-rules" data-studio-tab="rules" onclick="switchStudioTab('rules')">
+					<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+					<span>Auto-Archive Rules</span>
+				</button>
+			</div>
+
+			<!-- TAB 1: Video Catalog -->
+			<div class="studio-tab-pane active" id="studio-pane-catalog">
+				<div class="studio-toolbar">
+					<div class="studio-search-box">
+						<svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+						<input type="text" id="studio-search-input" placeholder="Search videos by title..." oninput="filterStudioCatalog()">
+					</div>
+					<div class="studio-filter-group">
+						<div class="opt-chip-pills" id="studio-category-filters">
+							<button class="filter-pill active" id="cat-pill-all" onclick="setStudioCategoryFilter('all')">All Categories</button>
+							<button class="filter-pill" id="cat-pill-videos" onclick="setStudioCategoryFilter('Videos')">Videos</button>
+							<button class="filter-pill" id="cat-pill-shorts" onclick="setStudioCategoryFilter('Shorts')">Shorts (≤ 60s)</button>
+							<button class="filter-pill" id="cat-pill-live" onclick="setStudioCategoryFilter('Live Streams')">Live Streams</button>
+						</div>
+						<div class="opt-chip-pills" id="studio-status-filters">
+							<button class="filter-pill active" id="stat-pill-all" onclick="setStudioStatusFilter('all')">All Status</button>
+							<button class="filter-pill" id="stat-pill-unarchived" onclick="setStudioStatusFilter('unarchived')">Unarchived</button>
+							<button class="filter-pill" id="stat-pill-archived" onclick="setStudioStatusFilter('archived')">Archived</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Batch action bar -->
+				<div class="studio-batch-bar">
+					<div class="studio-batch-left">
+						<label class="studio-select-all-label">
+							<input type="checkbox" id="studio-select-all" onchange="toggleSelectAllStudioVideos(this.checked)">
+							<span>Select All Visible</span>
+						</label>
+						<span class="studio-selected-count" id="studio-selected-count">0 selected</span>
+					</div>
+					<div class="studio-batch-actions">
+						<button class="btn btn-sm btn-secondary" onclick="syncLatestChannelVideos(5)">Download Latest 5</button>
+						<button class="btn btn-sm btn-primary" id="studio-download-selected-btn" onclick="enqueueSelectedStudioVideos()" disabled>
+							<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:text-top;margin-right:4px;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+							<span id="studio-download-selected-label">Download Selected (0)</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- Catalog List Container -->
+				<div class="studio-catalog-list" id="studio-catalog-container">
+					<div class="studio-loading">
+						<div class="btn-loader"></div>
+						<span>Loading channel catalog...</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- TAB 2: Auto-Archive Rules -->
+			<div class="studio-tab-pane" id="studio-pane-rules">
+				<div class="studio-rules-form">
+					<div class="pref-card">
+						<div class="pref-card-header">
+							<h4>Smart Auto-Archive Rules</h4>
+							<p>Configure automatic background monitoring and filtering rules for new uploads from this channel.</p>
+						</div>
+						<div class="pref-row">
+							<div class="pref-row-info">
+								<label for="rule-auto-download">Auto-Download New Uploads</label>
+								<span>Automatically detect and enqueue new video uploads during background sync cycles.</span>
+							</div>
+							<label class="toggle-switch">
+								<input type="checkbox" id="rule-auto-download">
+								<span class="slider"></span>
+							</label>
+						</div>
+						<div class="pref-row">
+							<div class="pref-row-info">
+								<label for="rule-exclude-shorts">Exclude YouTube Shorts (≤ 60s)</label>
+								<span>Skip vertical short-form uploads and only archive regular long-form videos.</span>
+							</div>
+							<label class="toggle-switch">
+								<input type="checkbox" id="rule-exclude-shorts">
+								<span class="slider"></span>
+							</label>
+						</div>
+						<div class="pref-row">
+							<div class="pref-row-info">
+								<label for="rule-exclude-live">Exclude Live Streams</label>
+								<span>Skip live streams and stream recordings, focusing solely on standard video uploads.</span>
+							</div>
+							<label class="toggle-switch">
+								<input type="checkbox" id="rule-exclude-live">
+								<span class="slider"></span>
+							</label>
+						</div>
+						<div class="pref-row">
+							<div class="pref-row-info">
+								<label for="rule-min-duration">Minimum Video Duration</label>
+								<span>Ignore very short clips shorter than this threshold.</span>
+							</div>
+							<select id="rule-min-duration" class="form-select">
+								<option value="0">No Minimum (Archive All)</option>
+								<option value="120">At least 2 minutes</option>
+								<option value="300">At least 5 minutes</option>
+								<option value="600">At least 10 minutes</option>
+								<option value="1200">At least 20 minutes</option>
+							</select>
+						</div>
+						<div class="pref-row">
+							<div class="pref-row-info">
+								<label for="rule-max-auto-sync">Max Auto-Sync Batch Size</label>
+								<span>Maximum number of new videos to enqueue per auto-sync cycle.</span>
+							</div>
+							<select id="rule-max-auto-sync" class="form-select">
+								<option value="0">All Unarchived Uploads</option>
+								<option value="1">Latest 1 Video Only</option>
+								<option value="3">Latest 3 Videos</option>
+								<option value="5">Latest 5 Videos</option>
+								<option value="10">Latest 10 Videos</option>
+							</select>
+						</div>
+						<div class="pref-actions" style="margin-top: 20px; display: flex; justify-content: flex-end;">
+							<button class="btn btn-primary" onclick="saveStudioRules()">
+								<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+								<span>Save Channel Rules</span>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Toast Container -->
+	<div class="toast-container" id="toast-container"></div>
+
+	<!-- Script -->
+	<script src="app.js"></script>
+</body>
+</html>

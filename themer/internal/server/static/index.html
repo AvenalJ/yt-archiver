@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>YT Themer — Template Reskinning Studio</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<!-- Header -->
+	<header id="app-header">
+		<div class="header-left">
+			<div class="logo">
+				<svg viewBox="0 0 24 24" class="logo-icon"><path d="M12 3c-1.27 0-2.4.8-2.82 2H4v2h1.82C6.4 9.2 7.73 11 9.51 11.82V20h2v-8.18C12.27 11.2 13.6 9.2 14.18 7H16V5h-5.18C10.4 3.8 9.27 3 8 3z"/></svg>
+				<span class="logo-text">YT <span class="logo-accent">Themer</span></span>
+			</div>
+		</div>
+		<div class="header-right">
+			<span class="header-subtitle">Template Reskinning Studio</span>
+		</div>
+	</header>
+
+	<!-- Main Content -->
+	<main id="app-main">
+		<!-- Step 1: Directory Picker -->
+		<section class="step-section" id="step-scan">
+			<div class="step-card">
+				<div class="step-header">
+					<div class="step-number">1</div>
+					<div>
+						<h2>Select Downloads Folder</h2>
+						<p class="step-desc">Point to your YT Archive downloads directory. All HTML files will be scanned and classified.</p>
+					</div>
+				</div>
+				<div class="scan-input-row">
+					<input type="text" id="folder-input" placeholder="C:\Users\...\downloads" class="folder-input" autocomplete="off">
+					<button class="btn btn-primary" id="scan-btn" onclick="scanDirectory()">
+						<svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+						Scan
+					</button>
+				</div>
+				<div id="scan-status" class="scan-status" style="display:none;"></div>
+			</div>
+		</section>
+
+		<!-- Step 2: Scan Results -->
+		<section class="step-section" id="step-results" style="display:none;">
+			<div class="step-card">
+				<div class="step-header">
+					<div class="step-number">2</div>
+					<div>
+						<h2>Detected HTML Files</h2>
+						<p class="step-desc" id="results-subtitle">Found files in your downloads folder</p>
+					</div>
+				</div>
+				<!-- Summary Badges -->
+				<div class="summary-badges" id="summary-badges"></div>
+				<!-- File List -->
+				<div class="file-list" id="file-list"></div>
+				<!-- Selection Controls -->
+				<div class="selection-controls">
+					<label class="checkbox-label">
+						<input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this.checked)" checked>
+						<span>Select All</span>
+					</label>
+					<span class="selected-count" id="selected-count">0 selected</span>
+				</div>
+			</div>
+		</section>
+
+		<!-- Step 3: Template Gallery -->
+		<section class="step-section" id="step-templates" style="display:none;">
+			<div class="step-card">
+				<div class="step-header">
+					<div class="step-number">3</div>
+					<div>
+						<h2>Choose Template</h2>
+						<p class="step-desc">Pick a visual style to apply to all selected files</p>
+					</div>
+				</div>
+				<div class="template-gallery" id="template-gallery"></div>
+			</div>
+		</section>
+
+		<!-- Step 4: Apply -->
+		<section class="step-section" id="step-apply" style="display:none;">
+			<div class="step-card apply-card">
+				<div class="apply-summary">
+					<div class="apply-info">
+						<h3 id="apply-title">Ready to Apply</h3>
+						<p id="apply-desc">Applying template to 0 files. Original files will be backed up as .bak</p>
+					</div>
+					<div class="apply-actions">
+						<button class="btn btn-secondary" onclick="restoreAll()">
+							<svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg>
+							Restore Backups
+						</button>
+						<button class="btn btn-accent" id="apply-btn" onclick="applyTemplate()">
+							<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+							Apply Template
+						</button>
+					</div>
+				</div>
+				<!-- Progress & Results -->
+				<div id="apply-progress" class="apply-progress" style="display:none;">
+					<div class="progress-bar-container">
+						<div class="progress-bar" id="progress-bar"></div>
+					</div>
+					<div class="progress-text" id="progress-text">Applying...</div>
+				</div>
+				<div id="apply-results" class="apply-results" style="display:none;"></div>
+			</div>
+		</section>
+	</main>
+
+	<!-- Universal Theme-Aware Custom Modal / Dialog Backdrop -->
+	<div id="custom-dialog-backdrop" class="custom-dialog-backdrop" style="display: none;" onclick="handleDialogBackdropClick(event)">
+		<div class="custom-dialog-card" id="custom-dialog-card" role="dialog" aria-modal="true">
+			<div class="custom-dialog-header">
+				<div class="custom-dialog-icon" id="custom-dialog-icon"></div>
+				<div class="custom-dialog-titles">
+					<h3 id="custom-dialog-title"></h3>
+					<p id="custom-dialog-message"></p>
+				</div>
+				<button type="button" class="custom-dialog-close" onclick="closeCustomDialog(null)" title="Close" aria-label="Close">
+					<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+				</button>
+			</div>
+			<div class="custom-dialog-body" id="custom-dialog-body"></div>
+			<div class="custom-dialog-actions" id="custom-dialog-actions"></div>
+		</div>
+	</div>
+
+	<!-- Toast Notification -->
+	<div id="toast" class="toast"></div>
+
+	<script src="app.js"></script>
+</body>
+</html>
