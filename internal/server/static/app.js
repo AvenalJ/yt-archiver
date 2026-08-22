@@ -339,13 +339,35 @@ function handleSSEEvent(msg) {
 	}
 }
 
+function normalizeYouTubeInput(str) {
+	str = (str || '').trim();
+	if (!str) return '';
+	if (str.startsWith('@')) {
+		return 'https://www.youtube.com/' + str;
+	}
+	if (str.startsWith('UC') && str.length === 24 && !str.includes('/')) {
+		return 'https://www.youtube.com/channel/' + str;
+	}
+	if (str.startsWith('youtube.com/') || str.startsWith('www.youtube.com/') || str.startsWith('m.youtube.com/') || str.startsWith('youtu.be/')) {
+		return 'https://' + str;
+	}
+	if (!str.startsWith('http://') && !str.startsWith('https://')) {
+		if (!str.includes('/') && !str.includes('.')) {
+			return 'https://www.youtube.com/@' + str;
+		}
+		return 'https://' + str;
+	}
+	return str;
+}
+
 // Inspect URL with AbortController support
 async function inspectUrl() {
-	const url = targetUrlInput.value.trim();
-	if (!url) {
+	const raw = targetUrlInput.value.trim();
+	if (!raw) {
 		showToast('Please enter a YouTube video or playlist URL', 'error');
 		return;
 	}
+	const url = normalizeYouTubeInput(raw);
 
 	const btnText = inspectBtn.querySelector('.btn-text');
 	const btnLoader = inspectBtn.querySelector('.btn-loader');
@@ -1446,11 +1468,12 @@ function renderChannels() {
 async function addChannel() {
 	const input = document.getElementById('add-channel-input');
 	if (!input) return;
-	const url = input.value.trim();
-	if (!url) {
-		showToast('Please enter a channel URL or handle', 'error');
+	const raw = input.value.trim();
+	if (!raw) {
+		showToast('Please enter a channel URL or handle (e.g. @CasuallyExplained)', 'error');
 		return;
 	}
+	const url = normalizeYouTubeInput(raw);
 
 	const btn = document.getElementById('add-channel-btn');
 	if (btn) {

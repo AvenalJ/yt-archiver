@@ -67,6 +67,41 @@ func isSingleVideoURL(rawURL string) bool {
 	return false
 }
 
+// NormalizeYouTubeURL handles raw handles (@name), channel IDs, short URLs, and missing protocols
+func NormalizeYouTubeURL(rawURL string) string {
+	rawURL = strings.TrimSpace(rawURL)
+	if rawURL == "" {
+		return ""
+	}
+
+	// 1. If it starts with @ (e.g. @CasuallyExplained)
+	if strings.HasPrefix(rawURL, "@") {
+		return "https://www.youtube.com/" + rawURL
+	}
+
+	// 2. If it's a raw channel ID like UC... (24 chars)
+	if strings.HasPrefix(rawURL, "UC") && len(rawURL) == 24 && !strings.Contains(rawURL, "/") {
+		return "https://www.youtube.com/channel/" + rawURL
+	}
+
+	// 3. If it starts with youtube.com, m.youtube.com, or youtu.be without protocol
+	if strings.HasPrefix(rawURL, "youtube.com/") || strings.HasPrefix(rawURL, "www.youtube.com/") ||
+		strings.HasPrefix(rawURL, "m.youtube.com/") || strings.HasPrefix(rawURL, "youtu.be/") {
+		return "https://" + rawURL
+	}
+
+	// 4. If it has no scheme at all
+	if !strings.HasPrefix(rawURL, "http://") && !strings.HasPrefix(rawURL, "https://") {
+		// If it looks like a handle or channel slug without @
+		if !strings.Contains(rawURL, "/") && !strings.Contains(rawURL, ".") {
+			return "https://www.youtube.com/@" + rawURL
+		}
+		return "https://" + rawURL
+	}
+
+	return rawURL
+}
+
 // InspectURL inspects a single video, playlist, or channel URL and returns details
 func InspectURL(rawURL string) (*InspectResult, error) {
 	return InspectURLWithContext(context.Background(), rawURL)
@@ -74,6 +109,7 @@ func InspectURL(rawURL string) (*InspectResult, error) {
 
 // InspectURLWithContext inspects a video, playlist, or channel URL with an adaptive timeout and parent context
 func InspectURLWithContext(ctx context.Context, rawURL string) (*InspectResult, error) {
+	rawURL = NormalizeYouTubeURL(rawURL)
 	cfg := config.GlobalConfig
 	if len(cfg.YtDlpCmd) == 0 {
 		err := fmt.Errorf("yt-dlp command not configured")
@@ -311,6 +347,7 @@ parseInspectJSON:
 
 // InspectChannelCatalog fetches the video catalog for a YouTube channel URL
 func InspectChannelCatalog(ctx context.Context, channelURL string, maxItems int) (*ChannelCatalogResult, error) {
+	channelURL = NormalizeYouTubeURL(channelURL)
 	cfg := config.GlobalConfig
 	if len(cfg.YtDlpCmd) == 0 {
 		err := fmt.Errorf("yt-dlp command not configured")
