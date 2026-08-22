@@ -1846,7 +1846,7 @@ function renderStudioCatalog() {
 		row.className = `studio-video-row ${isSelected ? 'selected' : ''}`;
 		row.id = `studio-video-row-${v.id}`;
 
-		const durationStr = formatDuration(v.duration);
+		const durationStr = (v.duration && v.duration > 0) ? formatDuration(v.duration) : '';
 		let catClass = 'video';
 		let catLabel = 'Video';
 		if (v.category === 'Shorts') {
