@@ -21,23 +21,27 @@ rebuild.exe
 *.sqlite
 *.sqlite3
 
-# User media downloads & local archives
-/downloads/
+# User media downloads & Local media & temp metadata
+downloads/
 *.mp4
-*.mkv
 *.webm
+*.mkv
 *.mp3
 *.m4a
 *.opus
 *.flac
-*.wav
-*.aac
+*.vtt
+*.nfo
+channel.json
+community.json
+playlists.json
+posts.json
+aac
 *.jpg
 *.jpeg
 *.png.thumb
 *.vtt
 *.srt
-*.nfo
 
 # User credentials, secrets & authentication
 cookies.txt
