@@ -343,10 +343,7 @@ func parseInitialData(rawJSON string, meta *ChannelMetadata) {
 																meta.SubscriberCount = parseSubCount(txt)
 															} else if strings.Contains(strings.ToLower(txt), "video") {
 																meta.TotalVideosText = txt
-																cleanCount := strings.ReplaceAll(strings.Split(txt, " ")[0], ",", "")
-																if count, err := strconv.Atoi(cleanCount); err == nil {
-																	meta.TotalVideos = count
-																}
+																meta.TotalVideos = int(parseSubCount(txt))
 															}
 														}
 													}

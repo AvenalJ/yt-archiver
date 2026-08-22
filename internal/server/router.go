@@ -689,6 +689,9 @@ func (s *Server) handleOpenHTML(w http.ResponseWriter, r *http.Request) {
 }
 
 func openInFileManager(path string) {
+	if abs, err := filepath.Abs(path); err == nil {
+		path = abs
+	}
 	switch runtime.GOOS {
 	case "windows":
 		exec.Command("explorer", filepath.Clean(path)).Start()
@@ -864,6 +867,33 @@ func (s *Server) handleAddChannel(w http.ResponseWriter, r *http.Request) {
 	channelID := catalog.ChannelID
 	if channelID == "" {
 		channelID = uuid.New().String()
+	}
+
+	// Check if already subscribed by channel ID, URL, or handle
+	existingChannel, _ := s.db.GetChannelByURLOrID(channelID, req.URL)
+	if existingChannel == nil && catalog.URL != "" {
+		existingChannel, _ = s.db.GetChannelByURLOrID(channelID, catalog.URL)
+	}
+	if existingChannel == nil && catalog.Handle != "" {
+		channels, _ := s.db.GetAllChannels()
+		for _, ch := range channels {
+			if strings.EqualFold(strings.TrimPrefix(ch.Handle, "@"), strings.TrimPrefix(catalog.Handle, "@")) {
+				existingChannel = ch
+				break
+			}
+		}
+	}
+
+	if existingChannel != nil {
+		// Update existing channel with fresh metadata and return it
+		_ = s.db.UpdateChannelFromCatalog(existingChannel.ID, catalog.Title, catalog.Handle, catalog.AvatarURL, catalog.SubscriberCount, catalog.TotalVideos)
+		updated, err := s.db.GetChannel(existingChannel.ID)
+		if err == nil && updated != nil {
+			logger.Infof("[API] Channel already subscribed: %q (Refreshed metadata)", updated.Title)
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(updated)
+			return
+		}
 	}
 
 	channel := &db.ChannelSubscription{

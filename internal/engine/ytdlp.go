@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 
 	"youtube-downloader/internal/config"
@@ -59,10 +60,10 @@ type ChannelCatalogResult struct {
 // isSingleVideoURL detects if a URL is a single video rather than a channel or playlist
 func isSingleVideoURL(rawURL string) bool {
 	u := strings.ToLower(rawURL)
-	if strings.Contains(u, "playlist?list=") || strings.Contains(u, "/@") || strings.Contains(u, "/channel/") || strings.Contains(u, "/c/") || strings.Contains(u, "/user/") || strings.Contains(u, "/videos") || strings.Contains(u, "/featured") || strings.Contains(u, "/playlists") || strings.Contains(u, "/shorts") {
+	if strings.Contains(u, "playlist?list=") || strings.Contains(u, "/@") || strings.Contains(u, "/channel/") || strings.Contains(u, "/c/") || strings.Contains(u, "/user/") || strings.Contains(u, "/videos") || strings.Contains(u, "/featured") || strings.Contains(u, "/playlists") || strings.HasSuffix(u, "/shorts") || strings.Contains(u, "/shorts?") {
 		return false
 	}
-	if strings.Contains(u, "watch?v=") || strings.Contains(u, "youtu.be/") || strings.Contains(u, "/shorts/") || strings.Contains(u, "/embed/") || strings.Contains(u, "/v/") {
+	if strings.Contains(u, "watch?v=") || strings.Contains(u, "youtu.be/") || strings.Contains(u, "/shorts/") || strings.Contains(u, "/live/") || strings.Contains(u, "/embed/") || strings.Contains(u, "/v/") {
 		return true
 	}
 	return false
@@ -306,7 +307,7 @@ parseInspectJSON:
 		}
 	}
 
-	// Parse available formats
+	// Parse format list for format selector
 	if formats, ok := raw["formats"].([]interface{}); ok {
 		for _, f := range formats {
 			fMap, ok := f.(map[string]interface{})
@@ -488,9 +489,32 @@ func InspectChannelCatalog(ctx context.Context, channelURL string, maxItems int)
 		result.TotalVideos = meta.TotalVideos
 	}
 
-	// 2. Fetch regular Videos tab
-	videosTabURL := baseURL + "/videos"
-	videoItems, rawVideos, errVideos := fetchChannelTabEntries(ctx, videosTabURL, maxItems, "Videos", result.Title, baseURL)
+	// 2. Fetch Videos, Shorts, and Live Streams tabs concurrently
+	var (
+		wg                                    sync.WaitGroup
+		videoItems, shortsItems, streamsItems []InspectVideoItem
+		rawVideos                             map[string]interface{}
+		errVideos                             error
+	)
+
+	wg.Add(3)
+
+	go func() {
+		defer wg.Done()
+		videoItems, rawVideos, errVideos = fetchChannelTabEntries(ctx, baseURL+"/videos", maxItems, "Videos", result.Title, baseURL)
+	}()
+
+	go func() {
+		defer wg.Done()
+		shortsItems, _, _ = fetchChannelTabEntries(ctx, baseURL+"/shorts", maxItems, "Shorts", result.Title, baseURL)
+	}()
+
+	go func() {
+		defer wg.Done()
+		streamsItems, _, _ = fetchChannelTabEntries(ctx, baseURL+"/streams", maxItems, "Live Streams", result.Title, baseURL)
+	}()
+
+	wg.Wait()
 
 	// If rawVideos has extra channel info and result is empty, fill from rawVideos
 	if rawVideos != nil {
@@ -524,15 +548,7 @@ func InspectChannelCatalog(ctx context.Context, channelURL string, maxItems int)
 		}
 	}
 
-	// 3. Fetch Shorts tab
-	shortsTabURL := baseURL + "/shorts"
-	shortsItems, _, _ := fetchChannelTabEntries(ctx, shortsTabURL, maxItems, "Shorts", result.Title, baseURL)
-
-	// 4. Fetch Live Streams tab (/streams)
-	streamsTabURL := baseURL + "/streams"
-	streamsItems, _, _ := fetchChannelTabEntries(ctx, streamsTabURL, maxItems, "Live Streams", result.Title, baseURL)
-
-	// 5. Merge Videos, Shorts & Live Streams deduplicated by ID
+	// 3. Merge Videos, Shorts & Live Streams deduplicated by ID
 	seenIDs := make(map[string]bool)
 	var allVideos []InspectVideoItem
 
@@ -608,6 +624,9 @@ func ExtractVideoID(rawURL string) string {
 		}
 		if strings.HasPrefix(u.Path, "/shorts/") {
 			return strings.TrimPrefix(u.Path, "/shorts/")
+		}
+		if strings.HasPrefix(u.Path, "/live/") {
+			return strings.TrimPrefix(u.Path, "/live/")
 		}
 		if strings.HasPrefix(u.Path, "/embed/") {
 			return strings.TrimPrefix(u.Path, "/embed/")

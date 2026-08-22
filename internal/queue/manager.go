@@ -838,6 +838,12 @@ func (qm *QueueManager) processItem(item *db.DownloadItem) {
 				if meta.ChannelURL == "" {
 					meta.ChannelURL, _ = rawMeta["uploader_url"].(string)
 				}
+				if meta.ChannelURL == "" && item.ChannelURL != "" {
+					meta.ChannelURL = item.ChannelURL
+				}
+				if meta.Channel == "" && item.Channel != "" {
+					meta.Channel = item.Channel
+				}
 				meta.ChannelAvatar, _ = rawMeta["channel_avatar"].(string)
 				meta.UploadDate, _ = rawMeta["upload_date"].(string)
 				if lk, ok := rawMeta["like_count"].(float64); ok {
