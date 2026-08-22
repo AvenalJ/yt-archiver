@@ -520,7 +520,7 @@ body {
 	--wails-draggable: none !important;
 }
 
-/* Custom Liquid Glass Window Controls */
+/* Custom Frosted Glass Window Controls */
 .window-controls {
 	display: inline-flex;
 	align-items: center;
@@ -2586,7 +2586,7 @@ input.invalid { border-color:var(--accent-red) !important; box-shadow:0 0 0 3px 
 [data-accent="lime"] { --accent-red:#9bdc3c; --accent-red-hover:#83c527; --accent-red-glow:rgba(155,220,60,.26); --accent-blue:#65d5b1; --accent-purple:#b3d96b; --accent-amber:#f0c94e; --accent-green:#74d65b; --border-focus:rgba(155,220,60,.62); --toggle-glow:rgba(155,220,60,.35); --text-on-accent:#172033; }
 [data-accent="sunset"] { --accent-red:#ff8a4c; --accent-red-hover:#ee6f2d; --accent-red-glow:rgba(255,138,76,.27); --accent-blue:#66b8e8; --accent-purple:#d28bce; --accent-amber:#ffc15c; --accent-green:#64c98d; --border-focus:rgba(255,138,76,.62); --toggle-glow:rgba(255,138,76,.35); }
 
-/* Liquid Glass Material System — Apple-inspired translucent layers, physical spring reactions, and specular light tracking */
+/* Glass Material System — Translucent layers, physical spring reactions, and specular light tracking */
 [data-theme="liquid-glass"] .app-layout { position:relative; isolation:isolate; background:transparent; }
 [data-theme="liquid-glass"] .app-layout::before {
 	content: "";
@@ -2645,7 +2645,7 @@ input.invalid { border-color:var(--accent-red) !important; box-shadow:0 0 0 3px 
 [data-theme="liquid-glass"] .top-bar { background: linear-gradient(135deg, var(--glass-panel-strong, rgba(20,20,28,.6)), rgba(255,255,255,.055)); border-color: var(--glass-border, rgba(255,255,255,.2)); }
 [data-theme="liquid-glass"] .sidebar { background: linear-gradient(135deg, var(--glass-panel-strong, rgba(20,20,28,.65)), rgba(255,255,255,.055)); border-color: var(--glass-border, rgba(255,255,255,.2)); }
 
-/* ── Specular Light Tracking via Cursor (Apple Liquid Glass Signature) ── */
+/* ── Specular Light Tracking via Cursor ── */
 [data-theme="liquid-glass"] .pref-card::after,
 [data-theme="liquid-glass"] .overview-card::after,
 [data-theme="liquid-glass"] .url-input-card::after,

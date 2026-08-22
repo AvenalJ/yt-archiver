@@ -2,7 +2,7 @@
 
 # 🎬 YT Archiver Studio
 
-**The ultimate high-fidelity, standalone YouTube & media archiver with an Apple-inspired Liquid Glass interface.**
+**The ultimate high-fidelity, standalone YouTube & media archiver with a modern frosted glass interface.**
 
 [![Go Version](https://img.shields.io/badge/Go-1.23+-00ADD8?style=flat-square&logo=go)](https://golang.org)
 [![Wails Version](https://img.shields.io/badge/Wails-v2.15-DF1A51?style=flat-square&logo=wails)](https://wails.io)
@@ -19,7 +19,7 @@
 ## Table of Contents
 
 - [Core Capabilities](#core-capabilities)
-- [Design & Aesthetics (Liquid Glass)](#design--aesthetics-liquid-glass)
+- [Design & Aesthetics](#design--aesthetics)
 - [Architecture & Design](#architecture--design)
 - [System Requirements](#system-requirements)
 - [Installation & Build](#installation--build)
@@ -38,8 +38,8 @@
 ## Core Capabilities
 
 ### 1. Standalone Native Desktop App (Wails v2)
-- **Frameless Glass Window**: Launches directly into a dedicated desktop window without browser chrome or external dependencies.
-- **Custom Liquid Glass Titlebar**: Features a frosted glass control capsule with reactive Minimize (`—`), Maximize/Restore (`□`), and Close (`✕`) buttons, glowing hover halos, and double-click maximize/restore support.
+- **Frameless Window**: Launches directly into a dedicated desktop window without browser chrome or external dependencies.
+- **Custom Window Titlebar**: Features a frosted glass control capsule with reactive Minimize (`—`), Maximize/Restore (`□`), and Close (`✕`) buttons, glowing hover halos, and double-click maximize/restore support.
 - **Pure GUI Subsystem**: Starts cleanly without any terminal or console window attached (`-H windowsgui`).
 - **Optional Headless / Server-Only Mode**: Can be run via `--server-only` to serve the web interface on a local network port without opening the desktop window.
 
@@ -72,18 +72,18 @@
 
 ---
 
-## Design & Aesthetics (Liquid Glass)
+## Design & Aesthetics
 
-YT Archiver Studio features an Apple-inspired Liquid Glass material design system:
+YT Archiver Studio features a modern multi-theme design system:
 
-* **Materials & Blur**: Multi-layer frosted glass panels (`backdrop-filter: blur(28px) saturate(180%)`), translucent borders with top-rim bevel highlights, and ambient refraction.
-* **Specular Cursor Light Tracking**: Dynamic radial highlight that tracks your mouse cursor across cards, navigation pills, and window control buttons in real time.
-* **4 Themes**:
-  - **Liquid Glass**: Deep dark canvas with full-bleed 3-orb ambient chromatic mesh and dynamic accent panel tinting.
-  - **Midnight Studio**: Sleek, high-contrast dark OLED aesthetic.
+* **4 Built-in Themes**:
+  - **Midnight Studio (Default)**: Sleek, high-contrast dark OLED aesthetic with deep black tones.
+  - **Glass**: Translucent panels with frosted depth, ambient chromatic mesh, and specular light tracking.
   - **Aurora**: Vibrant dark aesthetic with northern lights gradients.
   - **Paper**: Ultra-clean, high-legibility light theme.
 * **10 Accent Color Palettes**: Rose, Amber, Crimson, Lime, Sunset, Teal, Violet, Indigo, Ocean, Slate.
+* **Materials & Blur**: Multi-layer frosted glass elements, translucent borders with bevel highlights, and ambient glow.
+* **Specular Cursor Light Tracking**: Dynamic radial highlight that tracks your mouse cursor across interactive cards, pills, and window control buttons in real time.
 * **Micro-Animations**: Spring hover lifts, active tactile button compression, and smooth tab transitions.
 
 ---
@@ -97,14 +97,14 @@ YT Archiver is organized into decoupled internal packages within Go:
 │                    YT Archiver Desktop                      │
 │                  (Native Wails v2 Window)                   │
 ├─────────────────────────────────────────────────────────────┤
-│  [ Custom Draggable Titlebar & Liquid Glass Controls ]      │
+│  [ Custom Draggable Titlebar & Window Controls ]            │
 │  [ WebView2 Engine (Hardware Accelerated Chromium) ]        │
 │                                                             │
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │ Frontend Assets (index.html, style.css, app.js)       │  │
-│  │ • Liquid Glass specular cursor tracking               │  │
-│  │ • 4 Themes & 10 Accent Color Palettes                 │  │
-│  │ • Micro-animations, spring hover lifts, tab fades     │  │
+│  │ • Multi-theme system (Midnight Studio, Glass, etc.)   │  │
+│  │ • 10 Accent Color Palettes                            │  │
+│  │ • Specular light tracking, spring lifts, tab fades    │  │
 │  └───────────────────────────────────────────────────────┘  │
 │                            │                                │
 │                            ▼ (AssetsHandler / Bindings)     │

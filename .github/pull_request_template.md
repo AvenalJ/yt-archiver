@@ -5,7 +5,7 @@ Briefly describe the purpose of this PR and what changes it introduces.
 - [ ] Bug fix (non-breaking change fixing an issue)
 - [ ] New feature (non-breaking change adding functionality)
 - [ ] Performance improvement
-- [ ] UI/UX enhancement (Apple Liquid Glass design system)
+- [ ] UI/UX enhancement (Theme, styling, or interaction updates)
 - [ ] Documentation update
 
 ## Related Issues

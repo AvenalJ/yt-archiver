@@ -56,7 +56,7 @@ go run main.go --server-only
 │   ├── logger/                 # Structured console & file logging
 │   ├── queue/                  # Concurrent worker pool, rate limiter, circuit breaker, SSE broadcaster
 │   ├── server/                 # REST API, static asset server, preferences, channel sync
-│   │   └── static/             # Vanilla Liquid Glass frontend (HTML, CSS, JS)
+│   │   └── static/             # Vanilla multi-theme frontend (HTML, CSS, JS)
 │   └── sysutil/                # OS-specific process suppression (CREATE_NO_WINDOW)
 ├── cmd/
 │   └── rebuild/                # Offline archive HTML & NFO batch regenerator
@@ -70,7 +70,7 @@ go run main.go --server-only
 1. **Create a branch**: `git checkout -b feature/my-new-feature` or `git checkout -b fix/issue-description`.
 2. **Code Style**:
    - Go: Run `go fmt ./...` and `go vet ./...` before committing.
-   - Frontend: Vanilla CSS & JS only (no heavy UI frameworks or Tailwind unless discussed). Maintain the Apple Liquid Glass design system.
+   - Frontend: Vanilla CSS & JS only (no heavy UI frameworks or Tailwind unless discussed). Ensure UI changes work harmoniously across all 4 built-in themes (Midnight Studio, Glass, Aurora, Paper).
 3. **Tests**: Ensure tests pass by running `go test ./...`.
 4. **Submit PR**: Open a pull request targeting `main` with a clear description of your changes and any relevant screenshots.
 

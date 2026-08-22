@@ -2906,7 +2906,7 @@ function windowClose() {
 	}
 }
 
-// ── High-Performance Liquid Glass Specular Cursor Tracker ──
+// ── High-Performance Specular Glass Cursor Tracker ──
 function initLiquidGlassTracking() {
 	let rafId = null;
 	let currentTarget = null;
