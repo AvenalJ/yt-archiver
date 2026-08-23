@@ -750,7 +750,23 @@ func (d *DB) ResetInterruptedDownloads() error {
 	defer d.mu.Unlock()
 
 	// Reset downloading / paused downloads on app restart
-	_, err := d.db.Exec("UPDATE downloads SET status = 'paused' WHERE status IN ('downloading', 'queued')")
+	_, err := d.db.Exec("UPDATE downloads SET status = 'paused', current_step = 'Paused' WHERE status IN ('downloading', 'queued')")
+	return err
+}
+
+func (d *DB) PauseAllDownloads() error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	_, err := d.db.Exec("UPDATE downloads SET status = 'paused', current_step = 'Paused' WHERE status IN ('downloading', 'queued')")
+	return err
+}
+
+func (d *DB) ResumeAllDownloads() error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	_, err := d.db.Exec("UPDATE downloads SET status = 'queued', current_step = 'Waiting in queue...' WHERE status = 'paused'")
 	return err
 }
 

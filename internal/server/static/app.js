@@ -1241,6 +1241,69 @@ async function fetchMissingAssets() {
 	}
 }
 
+async function pauseAllDownloads() {
+	try {
+		const res = await fetch('/api/queue/pause-all', { method: 'POST' });
+		if (!res.ok) throw new Error('Failed to pause all downloads');
+		showToast('All downloads paused', 'info');
+		fetchDownloads();
+	} catch (err) {
+		showToast(err.message, 'error');
+	}
+}
+
+async function resumeAllDownloads() {
+	try {
+		const res = await fetch('/api/queue/resume-all', { method: 'POST' });
+		if (!res.ok) throw new Error('Failed to resume all downloads');
+		showToast('All downloads resumed', 'info');
+		fetchDownloads();
+	} catch (err) {
+		showToast(err.message, 'error');
+	}
+}
+
+async function clearQueue() {
+	if (!confirm('Are you sure you want to clear all unfinished downloads from the queue?')) return;
+	try {
+		const res = await fetch('/api/queue/clear', { method: 'POST' });
+		const data = await res.json();
+		if (!res.ok) throw new Error(data.error || 'Failed to clear queue');
+		showToast(data.message || 'Queue cleared', 'success');
+		fetchDownloads();
+	} catch (err) {
+		showToast(err.message, 'error');
+	}
+}
+
+async function randomizeQueueOrder() {
+	const queued = allDownloads.filter(d => d.status === 'queued').map(d => d.id);
+	if (queued.length <= 1) {
+		showToast('Need at least 2 queued items to randomize', 'info');
+		return;
+	}
+	for (let i = queued.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[queued[i], queued[j]] = [queued[j], queued[i]];
+	}
+	try {
+		const res = await fetch('/api/queue/reorder', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ ids: queued })
+		});
+		if (!res.ok) throw new Error('Failed to reorder queue');
+		showToast('Queue order randomized', 'success');
+		fetchDownloads();
+	} catch (err) {
+		showToast(err.message, 'error');
+	}
+}
+
+async function revertQueueOrder() {
+	fetchDownloads();
+}
+
 function applyUIMode(mode) {
 	if (mode === 'compact') {
 		document.documentElement.setAttribute('data-density', 'compact');

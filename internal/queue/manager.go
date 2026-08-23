@@ -452,11 +452,15 @@ func (qm *QueueManager) PauseAll() {
 			cancel()
 		}
 		engine.ProcessManager.Stop(id)
-		_ = qm.db.UpdateDownloadStatus(id, "paused", "")
 	}
 	qm.mu.Unlock()
 
+	// Update all active and queued items in DB to paused
+	_ = qm.db.PauseAllDownloads()
+
+	logger.Infof("[Queue] Paused all active and queued downloads")
 	Broadcaster.Broadcast("toast", map[string]string{"message": "All downloads paused", "type": "info"})
+	Broadcaster.Broadcast("queue_update", nil)
 }
 
 func (qm *QueueManager) ResumeAll() {
@@ -464,17 +468,12 @@ func (qm *QueueManager) ResumeAll() {
 	qm.isPausedAll = false
 	qm.mu.Unlock()
 
-	// Update all paused to queued
-	pausedItems, err := qm.db.GetAllDownloads("paused", "")
-	if err == nil {
-		for _, item := range pausedItems {
-			item.Status = "queued"
-			item.CurrentStep = "Queued..."
-			_ = qm.db.UpdateDownload(item)
-		}
-	}
+	// Update all paused items in DB to queued
+	_ = qm.db.ResumeAllDownloads()
 
+	logger.Infof("[Queue] Resumed all paused downloads")
 	Broadcaster.Broadcast("toast", map[string]string{"message": "All downloads resumed", "type": "info"})
+	Broadcaster.Broadcast("queue_update", nil)
 	qm.triggerWorker()
 }
 

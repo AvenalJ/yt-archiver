@@ -26,6 +26,22 @@ var (
 	globalLogger *SessionLogger
 )
 
+type syncWriter struct {
+	mu sync.Mutex
+	f  *os.File
+}
+
+func (s *syncWriter) Write(p []byte) (n int, err error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.f == nil {
+		return len(p), nil
+	}
+	n, err = s.f.Write(p)
+	_ = s.f.Sync() // Force Windows OS filesystem cache flush immediately
+	return n, err
+}
+
 // InitLogger initializes session logging in dataDir/logs, creating a new timestamped log file
 // and enforcing a maximum retention of 10 session logs.
 func InitLogger(dataDir string) (*SessionLogger, error) {
@@ -43,7 +59,8 @@ func InitLogger(dataDir string) (*SessionLogger, error) {
 		return nil, fmt.Errorf("failed to create session log file: %w", err)
 	}
 
-	mw := io.MultiWriter(os.Stdout, f)
+	sw := &syncWriter{f: f}
+	mw := io.MultiWriter(os.Stdout, sw)
 	log.SetOutput(mw)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
 
@@ -57,11 +74,12 @@ func InitLogger(dataDir string) (*SessionLogger, error) {
 	globalLogger = sl
 	globalMu.Unlock()
 
-	// Enforce 10 log retention limit
-	pruneOldLogs(logsDir, MaxSessionLogs)
+	// Enforce 10 log retention limit and remove 0-byte orphan logs
+	pruneOldLogs(logsDir, MaxSessionLogs, logPath)
 
 	Infof("=== New YT Archiver Session Started: %s ===", sessionName)
 	Infof("Session Log File: %s", logPath)
+	_ = f.Sync()
 
 	return sl, nil
 }
@@ -84,10 +102,11 @@ func (l *SessionLogger) Close() error {
 	Infof("=== YT Archiver Session Ended ===")
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	_ = l.file.Sync()
 	return l.file.Close()
 }
 
-func pruneOldLogs(logsDir string, maxLogs int) {
+func pruneOldLogs(logsDir string, maxLogs int, currentLogPath string) {
 	entries, err := os.ReadDir(logsDir)
 	if err != nil {
 		return
@@ -96,6 +115,7 @@ func pruneOldLogs(logsDir string, maxLogs int) {
 	type logFileEntry struct {
 		path    string
 		modTime time.Time
+		size    int64
 	}
 
 	var logFiles []logFileEntry
@@ -105,11 +125,18 @@ func pruneOldLogs(logsDir string, maxLogs int) {
 		}
 		name := entry.Name()
 		if strings.HasPrefix(name, "session_") && strings.HasSuffix(name, ".log") {
+			fullPath := filepath.Join(logsDir, name)
 			info, err := entry.Info()
 			if err == nil {
+				// Remove 0-byte abandoned files from prior runs if not the current file
+				if info.Size() == 0 && fullPath != currentLogPath {
+					_ = os.Remove(fullPath)
+					continue
+				}
 				logFiles = append(logFiles, logFileEntry{
-					path:    filepath.Join(logsDir, name),
+					path:    fullPath,
 					modTime: info.ModTime(),
+					size:    info.Size(),
 				})
 			}
 		}
