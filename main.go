@@ -115,7 +115,7 @@ func main() {
 		Windows: &windows.Options{
 			WebviewIsTransparent: false,
 			WindowIsTranslucent:  false,
-			BackdropType:         windows.Mica,
+			BackdropType:         windows.Auto,
 			DisableWindowIcon:    false,
 		},
 	})

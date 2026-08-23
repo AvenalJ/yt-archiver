@@ -305,32 +305,40 @@ func (qm *QueueManager) autoRetryLoop() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		prefs, err := qm.db.GetPreferences()
-		if err != nil || prefs == nil || !prefs.AutoRetryFailed {
-			continue
-		}
-		if prefs.AutoRetryMaxAttempts <= 0 {
-			prefs.AutoRetryMaxAttempts = 3
-		}
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					logger.Errorf("[Queue] Panic recovered in autoRetryLoop: %v", r)
+				}
+			}()
 
-		failed, _ := qm.db.GetAllDownloads("failed", "")
-		now := time.Now()
-		for _, item := range failed {
-			qm.mu.Lock()
-			due, exists := qm.retryAt[item.ID]
-			qm.mu.Unlock()
-			if exists && now.Before(due) {
-				continue
+			prefs, err := qm.db.GetPreferences()
+			if err != nil || prefs == nil || !prefs.AutoRetryFailed {
+				return
 			}
-			attempt := retryAttempt(item.ErrorMessage)
-			if attempt >= prefs.AutoRetryMaxAttempts {
-				continue
+			if prefs.AutoRetryMaxAttempts <= 0 {
+				prefs.AutoRetryMaxAttempts = 3
 			}
-			item.Status, item.Progress, item.ErrorMessage = "queued", 0, ""
-			item.CurrentStep = fmt.Sprintf("Automatic retry %d/%d starting...", attempt+1, prefs.AutoRetryMaxAttempts)
-			_ = qm.db.UpdateDownload(item)
-			qm.triggerWorker()
-		}
+
+			failed, _ := qm.db.GetAllDownloads("failed", "")
+			now := time.Now()
+			for _, item := range failed {
+				qm.mu.Lock()
+				due, exists := qm.retryAt[item.ID]
+				qm.mu.Unlock()
+				if exists && now.Before(due) {
+					continue
+				}
+				attempt := retryAttempt(item.ErrorMessage)
+				if attempt >= prefs.AutoRetryMaxAttempts {
+					continue
+				}
+				item.Status, item.Progress, item.ErrorMessage = "queued", 0, ""
+				item.CurrentStep = fmt.Sprintf("Automatic retry %d/%d starting...", attempt+1, prefs.AutoRetryMaxAttempts)
+				_ = qm.db.UpdateDownload(item)
+				qm.triggerWorker()
+			}
+		}()
 	}
 }
 
@@ -382,30 +390,41 @@ func (qm *QueueManager) channelSyncLoop() {
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
 	for range ticker.C {
-		prefs, _ := qm.db.GetPreferences()
-		interval := 60
-		if prefs != nil && prefs.SyncIntervalMinutes > 0 {
-			interval = prefs.SyncIntervalMinutes
-		}
-
-		channels, _ := qm.db.GetAllChannels()
-		for _, channel := range channels {
-			if channel.LastSynced != nil && time.Since(*channel.LastSynced) < time.Duration(interval)*time.Minute {
-				continue
-			}
-
-			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-			// Automatically sync profile metadata, subscribers, and video count
-			_ = qm.RefreshChannelMetadata(ctx, channel.ID)
-
-			// Only auto-download videos if AutoDownload is explicitly enabled for this channel
-			if prefs != nil && prefs.AutoSyncChannels && channel.AutoDownload {
-				if !prefs.SyncWindowEnabled || withinWindow(time.Now(), prefs.SyncWindowStart, prefs.SyncWindowEnd) {
-					_, _ = qm.SyncChannel(ctx, channel.ID)
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					logger.Errorf("[Queue] Panic recovered in channelSyncLoop: %v", r)
 				}
+			}()
+
+			prefs, _ := qm.db.GetPreferences()
+			if prefs == nil || !prefs.AutoSyncChannels {
+				return
 			}
-			cancel()
-		}
+			interval := 60
+			if prefs.SyncIntervalMinutes > 0 {
+				interval = prefs.SyncIntervalMinutes
+			}
+
+			channels, _ := qm.db.GetAllChannels()
+			for _, channel := range channels {
+				if channel.LastSynced != nil && time.Since(*channel.LastSynced) < time.Duration(interval)*time.Minute {
+					continue
+				}
+
+				ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+				// Automatically sync profile metadata, subscribers, and video count
+				_ = qm.RefreshChannelMetadata(ctx, channel.ID)
+
+				// Only auto-download videos if AutoDownload is explicitly enabled for this channel
+				if channel.AutoDownload {
+					if !prefs.SyncWindowEnabled || withinWindow(time.Now(), prefs.SyncWindowStart, prefs.SyncWindowEnd) {
+						_, _ = qm.SyncChannel(ctx, channel.ID)
+					}
+				}
+				cancel()
+			}
+		}()
 	}
 }
 
@@ -606,6 +625,10 @@ func (qm *QueueManager) workerLoop() {
 
 func (qm *QueueManager) processItem(item *db.DownloadItem) {
 	defer func() {
+		if r := recover(); r != nil {
+			logger.Errorf("[Queue] Panic recovered in processItem for %s: %v", item.ID, r)
+			_ = qm.db.UpdateDownloadStatus(item.ID, "failed", fmt.Sprintf("Internal worker error: %v", r))
+		}
 		qm.mu.Lock()
 		delete(qm.activeIDs, item.ID)
 		delete(qm.cancelFuncs, item.ID)

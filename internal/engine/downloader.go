@@ -315,6 +315,11 @@ func executeMediaDownloadInternal(
 
 	go func() {
 		defer wg.Done()
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Errorf("[Downloader] Panic recovered in stdout scanner: %v", r)
+			}
+		}()
 		scanner := bufio.NewScanner(stdoutPipe)
 		for scanner.Scan() {
 			line := scanner.Text()
@@ -354,6 +359,11 @@ func executeMediaDownloadInternal(
 
 	go func() {
 		defer wg.Done()
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Errorf("[Downloader] Panic recovered in stderr scanner: %v", r)
+			}
+		}()
 		scanner := bufio.NewScanner(stderrPipe)
 		for scanner.Scan() {
 			line := scanner.Text()
@@ -363,8 +373,8 @@ func executeMediaDownloadInternal(
 		_ = scanner.Err()
 	}()
 
-	err = cmd.Wait()
 	wg.Wait()
+	err = cmd.Wait()
 
 	if err != nil {
 		if cmdCtx.Err() != nil {

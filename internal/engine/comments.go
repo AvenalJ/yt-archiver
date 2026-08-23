@@ -2,7 +2,6 @@ package engine
 
 import (
 	"archive/zip"
-	"bufio"
 	"bytes"
 	"context"
 	"crypto/md5"
@@ -75,26 +74,7 @@ func FetchComments(ctx context.Context, videoURL, videoID string, limit int, dow
 	sysutil.HideWindow(cmd)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
-
-	stderrPipe, err := cmd.StderrPipe()
-	if err == nil {
-		go func() {
-			scanner := bufio.NewScanner(stderrPipe)
-			for scanner.Scan() {
-				line := scanner.Text()
-				stderr.WriteString(line)
-				stderr.WriteString("\n")
-				if onProgress != nil {
-					if strings.Contains(line, "Downloading comments page") || strings.Contains(line, "Extracting comment") {
-						onProgress("Downloading comments pages from YouTube...", 0)
-					}
-				}
-			}
-			_ = scanner.Err()
-		}()
-	} else {
-		cmd.Stderr = &stderr
-	}
+	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
 		firstErr := err
@@ -289,6 +269,11 @@ func downloadAvatarsToZipAndBase64(ctx context.Context, comments []*db.CommentIt
 		wg.Add(1)
 		go func(imgURL, h string) {
 			defer wg.Done()
+			defer func() {
+				if r := recover(); r != nil {
+					// silently recover from avatar worker panic
+				}
+			}()
 			select {
 			case sem <- struct{}{}:
 				defer func() { <-sem }()

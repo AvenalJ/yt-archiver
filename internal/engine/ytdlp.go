@@ -501,16 +501,31 @@ func InspectChannelCatalog(ctx context.Context, channelURL string, maxItems int)
 
 	go func() {
 		defer wg.Done()
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Errorf("[ChannelCatalog] Panic recovered in videos tab inspection: %v", r)
+			}
+		}()
 		videoItems, rawVideos, errVideos = fetchChannelTabEntries(ctx, baseURL+"/videos", maxItems, "Videos", result.Title, baseURL)
 	}()
 
 	go func() {
 		defer wg.Done()
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Errorf("[ChannelCatalog] Panic recovered in shorts tab inspection: %v", r)
+			}
+		}()
 		shortsItems, _, _ = fetchChannelTabEntries(ctx, baseURL+"/shorts", maxItems, "Shorts", result.Title, baseURL)
 	}()
 
 	go func() {
 		defer wg.Done()
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Errorf("[ChannelCatalog] Panic recovered in streams tab inspection: %v", r)
+			}
+		}()
 		streamsItems, _, _ = fetchChannelTabEntries(ctx, baseURL+"/streams", maxItems, "Live Streams", result.Title, baseURL)
 	}()
 
