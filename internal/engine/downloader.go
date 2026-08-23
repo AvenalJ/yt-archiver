@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 
 	"youtube-downloader/internal/config"
 	"youtube-downloader/internal/db"
@@ -284,9 +283,7 @@ func executeMediaDownloadInternal(
 
 	cmd := exec.CommandContext(cmdCtx, args[0], args[1:]...)
 	sysutil.HideWindow(cmd)
-	if cmd.SysProcAttr != nil {
-		cmd.SysProcAttr.CreationFlags |= syscall.CREATE_NEW_PROCESS_GROUP
-	}
+	sysutil.SetProcessGroup(cmd)
 
 	stdoutPipe, err := cmd.StdoutPipe()
 	if err != nil {

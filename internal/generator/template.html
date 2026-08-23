@@ -1407,7 +1407,7 @@
 					<!-- Interactive Timeline Scrubber -->
 					<div class="timeline-container" id="timeline-container">
 						<div class="timeline-tooltip" id="timeline-tooltip">
-							<div class="storyboard-preview" id="storyboard-preview" style="display: none;{{if .StoryboardFilename}}background-image: url('{{.StoryboardFilename}}');{{end}}"></div>
+							<div class="storyboard-preview" id="storyboard-preview" style="display: none;" data-storyboard="{{.StoryboardFilename}}"></div>
 							<span id="tooltip-time-text">0:00</span>
 						</div>
 						<div class="timeline-track" id="timeline-track">
