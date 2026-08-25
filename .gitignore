@@ -43,6 +43,10 @@ aac
 *.vtt
 *.srt
 
+# Documentation & repo assets exception
+!assets/
+!assets/**
+
 # User credentials, secrets & authentication
 cookies.txt
 *.cookies

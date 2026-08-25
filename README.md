@@ -12,6 +12,10 @@
 
 *Archive full-resolution video streams, companion audio, rich comment trees, localized subtitles, chapters, SponsorBlock data, and complete channel portals into self-contained, offline-ready archives.*
 
+<br><br>
+
+<img src="assets/preview.jpeg" alt="YT Archiver Studio Preview" width="100%">
+
 </div>
 
 ---
