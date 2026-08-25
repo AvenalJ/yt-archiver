@@ -19,10 +19,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"youtube-downloader/internal/config"
-	"youtube-downloader/internal/db"
-	"youtube-downloader/internal/logger"
-	"youtube-downloader/internal/sysutil"
+	"github.com/AvenalJ/yt-archiver/internal/config"
+	"github.com/AvenalJ/yt-archiver/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/logger"
+	"github.com/AvenalJ/yt-archiver/internal/sysutil"
 )
 
 type CommentExtractionResult struct {

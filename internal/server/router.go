@@ -15,11 +15,11 @@ import (
 	"strings"
 	"time"
 
-	"youtube-downloader/internal/config"
-	"youtube-downloader/internal/db"
-	"youtube-downloader/internal/engine"
-	"youtube-downloader/internal/logger"
-	"youtube-downloader/internal/queue"
+	"github.com/AvenalJ/yt-archiver/internal/config"
+	"github.com/AvenalJ/yt-archiver/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/engine"
+	"github.com/AvenalJ/yt-archiver/internal/logger"
+	"github.com/AvenalJ/yt-archiver/internal/queue"
 
 	"github.com/google/uuid"
 )

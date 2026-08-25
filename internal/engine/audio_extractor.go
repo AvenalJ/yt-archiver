@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"youtube-downloader/internal/config"
-	"youtube-downloader/internal/logger"
-	"youtube-downloader/internal/sysutil"
+	"github.com/AvenalJ/yt-archiver/internal/config"
+	"github.com/AvenalJ/yt-archiver/internal/logger"
+	"github.com/AvenalJ/yt-archiver/internal/sysutil"
 )
 
 // ExtractCompanionAudioFile extracts a high-quality companion audio file from the downloaded video using FFmpeg

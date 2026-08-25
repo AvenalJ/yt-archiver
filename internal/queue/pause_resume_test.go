@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"youtube-downloader/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/db"
 )
 
 func TestPauseAllAndResumeAll(t *testing.T) {

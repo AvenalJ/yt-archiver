@@ -12,10 +12,10 @@ import (
 	"strings"
 	"sync"
 
-	"youtube-downloader/internal/config"
-	"youtube-downloader/internal/db"
-	"youtube-downloader/internal/logger"
-	"youtube-downloader/internal/sysutil"
+	"github.com/AvenalJ/yt-archiver/internal/config"
+	"github.com/AvenalJ/yt-archiver/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/logger"
+	"github.com/AvenalJ/yt-archiver/internal/sysutil"
 )
 
 type DownloadProgressCallback func(progress float64, speed, eta string, downloaded, total int64, step string)

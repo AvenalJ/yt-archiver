@@ -10,11 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"youtube-downloader/internal/config"
-	"youtube-downloader/internal/db"
-	"youtube-downloader/internal/engine"
-	"youtube-downloader/internal/generator"
-	"youtube-downloader/internal/logger"
+	"github.com/AvenalJ/yt-archiver/internal/config"
+	"github.com/AvenalJ/yt-archiver/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/engine"
+	"github.com/AvenalJ/yt-archiver/internal/generator"
+	"github.com/AvenalJ/yt-archiver/internal/logger"
 )
 
 type CircuitBreaker struct {

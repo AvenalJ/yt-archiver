@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"youtube-downloader/internal/engine"
+	"github.com/AvenalJ/yt-archiver/internal/engine"
 )
 
 //go:embed channel_template.html

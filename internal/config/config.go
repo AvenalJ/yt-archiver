@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"youtube-downloader/internal/sysutil"
+	"github.com/AvenalJ/yt-archiver/internal/sysutil"
 )
 
 type AppConfig struct {

@@ -2,8 +2,8 @@ package engine
 
 import (
 	"testing"
-	"youtube-downloader/internal/config"
-	"youtube-downloader/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/config"
+	"github.com/AvenalJ/yt-archiver/internal/db"
 )
 
 func TestExtractMaxHeight(t *testing.T) {

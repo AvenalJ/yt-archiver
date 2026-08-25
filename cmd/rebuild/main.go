@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"youtube-downloader/internal/db"
-	"youtube-downloader/internal/engine"
-	"youtube-downloader/internal/generator"
+	"github.com/AvenalJ/yt-archiver/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/engine"
+	"github.com/AvenalJ/yt-archiver/internal/generator"
 )
 
 func main() {

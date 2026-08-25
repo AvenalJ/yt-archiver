@@ -72,7 +72,6 @@ func (b *SSEBroadcaster) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache, no-transform")
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	ch := b.Subscribe()
 	defer b.Unsubscribe(ch)

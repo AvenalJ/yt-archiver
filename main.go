@@ -20,11 +20,11 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
-	"youtube-downloader/internal/config"
-	"youtube-downloader/internal/db"
-	"youtube-downloader/internal/logger"
-	"youtube-downloader/internal/queue"
-	"youtube-downloader/internal/server"
+	"github.com/AvenalJ/yt-archiver/internal/config"
+	"github.com/AvenalJ/yt-archiver/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/logger"
+	"github.com/AvenalJ/yt-archiver/internal/queue"
+	"github.com/AvenalJ/yt-archiver/internal/server"
 )
 
 //go:embed all:internal/server/static

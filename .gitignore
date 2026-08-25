@@ -80,6 +80,12 @@ Desktop.ini
 .agents/
 .gemini/
 
+# Development artifacts
+implementation_plan.md
+
+# Themer standalone binary
+themer/themer.exe
+
 # Node / Package managers (if any)
 node_modules/
 dist/

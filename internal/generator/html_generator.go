@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"youtube-downloader/internal/db"
-	"youtube-downloader/internal/engine"
+	"github.com/AvenalJ/yt-archiver/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/engine"
 )
 
 //go:embed template.html

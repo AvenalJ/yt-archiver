@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"youtube-downloader/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/db"
 )
 
 func TestBuildCookieArgs(t *testing.T) {

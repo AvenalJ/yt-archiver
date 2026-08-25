@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"youtube-downloader/internal/logger"
+	"github.com/AvenalJ/yt-archiver/internal/logger"
 )
 
 type LiveChatMessage struct {

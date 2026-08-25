@@ -1,4 +1,4 @@
-module youtube-downloader
+module github.com/AvenalJ/yt-archiver
 
 go 1.25.0
 

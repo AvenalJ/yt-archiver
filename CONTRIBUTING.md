@@ -7,7 +7,7 @@ Thank you for your interest in contributing to **YT Archiver Studio**! This docu
 ## 🛠️ Development Setup
 
 ### Prerequisites
-1. **Go** (1.23+ recommended): [golang.org](https://golang.org/dl/)
+1. **Go** (1.25+ recommended): [golang.org](https://golang.org/dl/)
 2. **Wails v2 CLI**:
    ```bash
    go install github.com/wailsapp/wails/v2/cmd/wails@latest

@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"youtube-downloader/internal/db"
-	"youtube-downloader/internal/logger"
+	"github.com/AvenalJ/yt-archiver/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/logger"
 )
 
 type apiSponsorSegment struct {

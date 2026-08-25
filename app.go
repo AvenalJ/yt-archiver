@@ -7,9 +7,9 @@ import (
 	"runtime"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
-	"youtube-downloader/internal/db"
-	"youtube-downloader/internal/logger"
-	"youtube-downloader/internal/queue"
+	"github.com/AvenalJ/yt-archiver/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/logger"
+	"github.com/AvenalJ/yt-archiver/internal/queue"
 )
 
 // App struct represents the core desktop application

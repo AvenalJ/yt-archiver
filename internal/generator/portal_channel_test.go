@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"youtube-downloader/internal/engine"
+	"github.com/AvenalJ/yt-archiver/internal/engine"
 )
 
 func TestGenerateChannelHTML(t *testing.T) {

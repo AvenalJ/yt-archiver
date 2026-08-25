@@ -16,8 +16,8 @@ import (
 	"sync"
 	"time"
 
-	"youtube-downloader/internal/engine"
-	"youtube-downloader/internal/logger"
+	"github.com/AvenalJ/yt-archiver/internal/engine"
+	"github.com/AvenalJ/yt-archiver/internal/logger"
 )
 
 //go:embed portal_template.html

@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"youtube-downloader/internal/db"
+	"github.com/AvenalJ/yt-archiver/internal/db"
 )
 
 // BuildCookieArgs returns the CLI arguments for yt-dlp based on user preferences.

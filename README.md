@@ -4,11 +4,11 @@
 
 **The ultimate high-fidelity, standalone YouTube & media archiver with a modern frosted glass interface.**
 
-[![Go Version](https://img.shields.io/badge/Go-1.23+-00ADD8?style=flat-square&logo=go)](https://golang.org)
+[![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat-square&logo=go)](https://golang.org)
 [![Wails Version](https://img.shields.io/badge/Wails-v2.15-DF1A51?style=flat-square&logo=wails)](https://wails.io)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20|%20macOS%20|%20Linux-lightgrey?style=flat-square)](#system-requirements)
-[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen?style=flat-square)](#installation--build)
+[![Build Status](https://github.com/AvenalJ/yt-archiver/actions/workflows/build.yml/badge.svg)](https://github.com/AvenalJ/yt-archiver/actions/workflows/build.yml)
 
 *Archive full-resolution video streams, companion audio, rich comment trees, localized subtitles, chapters, SponsorBlock data, and complete channel portals into self-contained, offline-ready archives.*
 
@@ -134,7 +134,7 @@ YT Archiver is organized into decoupled internal packages within Go:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/yt-archiver.git
+git clone https://github.com/AvenalJ/yt-archiver.git
 cd yt-archiver
 ```
 
