@@ -123,7 +123,7 @@ YT Archiver is organized into decoupled internal packages within Go:
 ## System Requirements
 
 - **Operating System**: Windows 10/11 (64-bit), macOS 12+, or modern Linux distribution.
-- **Go**: Version 1.22 or higher (if compiling from source).
+- **Go**: Version 1.25 or higher (if compiling from source).
 - **yt-dlp**: Required on the system PATH, or placed directly in the working directory.
 - **FFmpeg & FFprobe**: Required for media stream merging, audio extraction, and storyboard generation.
 - **Microsoft Edge WebView2**: Pre-installed on Windows 10/11.
