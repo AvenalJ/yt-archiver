@@ -12,9 +12,42 @@
 
 *Archive full-resolution video streams, companion audio, rich comment trees, localized subtitles, chapters, SponsorBlock data, and complete channel portals into self-contained, offline-ready archives.*
 
-<br><br>
+<br>
 
-<img src="assets/preview.jpeg" alt="YT Archiver Studio Preview" width="100%">
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <sub><b>1. Media Stream Inspection & Quality Selection</b></sub><br>
+      <img src="assets/inspect-1.png" alt="1. Inspect & Stream Selection" width="100%">
+    </td>
+    <td width="50%" align="center">
+      <sub><b>2. Live Download Queue & Progress Tracker</b></sub><br>
+      <img src="assets/download-2.png" alt="2. Live Download Queue" width="100%">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <sub><b>3. Local Archive Library & Offline Explorer</b></sub><br>
+      <img src="assets/archive-3.png" alt="3. Offline Archive Catalog" width="100%">
+    </td>
+    <td width="50%" align="center">
+      <sub><b>4. Channel Studio & Smart Auto-Archive Rules</b></sub><br>
+      <img src="assets/subscribe-4.png" alt="4. Channel Studio" width="100%">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <sub><b>5. Download Preferences & Quality Defaults</b></sub><br>
+      <img src="assets/defaults-5.png" alt="5. Format Preferences" width="100%">
+    </td>
+    <td width="50%" align="center">
+      <sub><b>6. Multi-Theme Studio & Accent Color Customizer</b></sub><br>
+      <img src="assets/appearance-6.png" alt="6. Theme Studio" width="100%">
+    </td>
+  </tr>
+</table>
+
+<br>
 
 </div>
 
