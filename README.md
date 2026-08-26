@@ -35,6 +35,7 @@
 - [Maintenance & Archive Rebuilding](#maintenance--archive-rebuilding)
 - [Player Keyboard Shortcuts](#player-keyboard-shortcuts)
 - [Troubleshooting & FAQ](#troubleshooting--faq)
+- [Legal & Fair Use Disclaimer](#legal--fair-use-disclaimer)
 - [License](#license)
 
 ---
@@ -350,6 +351,15 @@ Yes. Every video folder inside `downloads/` is self-contained. You can move indi
 
 ---
 
+## Legal & Fair Use Disclaimer
+
+**YT Archiver Studio** is an open-source tool intended for personal archiving, educational research, and offline preservation of user-owned content, public domain media, and works distributed under open licenses (such as Creative Commons CC-BY / CC0).
+
+The developers and contributors do not endorse or encourage copyright infringement. Users are solely responsible for adhering to applicable copyright laws and the terms of service of the third-party platforms from which content is retrieved.
+
+---
+
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
